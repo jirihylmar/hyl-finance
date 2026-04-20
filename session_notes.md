@@ -157,3 +157,97 @@ This data source was not covered by Q6 (which asked about bank statements and ma
 |---|---|
 | orchestration (`.`) | needs_commit (progress.json, session_notes.md, .gitignore changed) |
 
+---
+
+## Session 2 — 2026-04-20
+
+User directive: **finish Phase 0 in one session, then delete `syndicate-playbooks-examples/`**. The formal 0.5 blocking-approval checkpoint is collapsed into a single end-of-session review covering the full set of Phase 0 deliverables.
+
+### Task 0.1a — Confirm invoice data-source handling
+
+**New data drop:** `dph-dap/` folder (gitignored) containing 5 TSV files plus the same invoice subdirectories seen in `resources/`. TSVs are Google Sheets exports (filename pattern `Fakturace - <tabname>.tsv`) — the user maintains a curated Google Sheet as the source-of-truth ledger.
+
+#### File-by-file breakdown of `dph-dap/`
+
+| File | Role | Shape (header columns) |
+|---|---|---|
+| `Fakturace - prijate_faktury.tsv` | **Primary input**: full received-invoices ledger (34 rows observed) | `Typ`, `Dodavatel`, `DIČ_dodavatele`, `Číslo_faktury`, `DUZP`, `Částka_orig`, `Měna`, `Základ_daně_CZK`, `DPH_21%_CZK`, `Celkem_CZK`, `Zařazení_KH`, `Poznámka`, `období` |
+| `Fakturace - vydane_faktury.tsv` | **Primary input**: issued-invoices ledger (3 rows observed) | `Typ`, `Odběratel`, `DIČ_odběratele`, `Číslo_faktury`, `DUZP`, `Částka_orig`, `Měna`, `Základ_daně_CZK`, `DPH_21%_CZK`, `Celkem_CZK`, `Zařazení_KH`, `Poznámka`, `Období` |
+| `Fakturace - DAP.tsv` | **Sample output**: per-period DAP line-number aggregation — the format v1 must produce | `Řádek_DAP`, `Popis`, `Základ_daně`, `DPH_21%`, `Poznámka`, `období` |
+| `Fakturace - KH_A4_vydane_nad_10k.tsv` | **Sample output**: KH section A.4 extract (issued, domestic, >10k CZK incl. VAT) | same as vydane + `Oddíl` prefix and section description |
+| `Fakturace - KH_B2_prijate_nad_10k.tsv` | **Sample output**: KH section B.2 extract (received, domestic, >10k CZK) with a totals row | same as prijate |
+
+#### Domain facts extracted from real data
+
+- **Filing cadence:** quarterly. Period format `YYYY_Q` (e.g. `2025_3` = Q3 2025). Observed periods: `2025_3`, `2025_4`, and zero-filled placeholders for `2026_1`–`2026_4`.
+- **DAP line numbers seen:** `1` (domestic supply), `5` (services received from EU §9(1)), `10` (domestic reverse charge §92a, supplier side), `12` (other taxable supplies with obligation to pay tax on receipt §108), `40` (input tax from taxable supplies from VAT payers), `43` (input tax from lines 3–13).
+- **KH sections seen:** `A.2` (received services from abroad / reverse charge), `A.4` (issued domestic >10k CZK), `B.2` (received domestic >10k CZK), `B.3` (received domestic <10k CZK, aggregated).
+- **Transaction `Typ` values seen:** `Tuzemsko` (domestic), `Reverse charge` (services from abroad), `Zahraničí` (foreign supplier with §9(1) place of supply).
+- **VAT rate seen:** 21% (only). Reduced rates (12% current, historically 15%/10%) are not yet represented in data but must be supported in code.
+- **Currencies:** CZK and EUR. When currency ≠ CZK, the sheet already contains CZK-converted base and VAT — v1 trusts the sheet's CZK values rather than doing FX itself.
+- **DIČ handling:** Reverse-charge suppliers (Anthropic) have empty DIČ field; domestic and EU suppliers always have DIČ.
+
+#### Decision for Task 0.1a
+
+1. **In scope for v1 — primary inputs:** the two ledger TSVs (`prijate_faktury.tsv`, `vydane_faktury.tsv`). v1 reads these as input.
+2. **In scope for v1 — outputs:** per-period DAP aggregation (matching the format of `DAP.tsv`), per-period KH section extracts (at minimum A.4 and B.2 + B.3 totals and A.2), EPO-compatible XML for both DAP and KH.
+3. **Out of scope for v1:** parsing raw invoice PDFs in `resources/Přijaté Faktury/` and `resources/Vydané faktury/`. These remain archival; v1 does not read them. (Future phase may add PDF extraction as a cross-check.)
+4. **Out of scope for v1:** direct Google Sheets API integration. v1 consumes the TSV files that the user exports manually. (Future phase may add Sheets API pull.)
+5. **Downgrade of Session 1 answer Q6:** bank statements (CSV / ABO / camt.053) are **removed** as a v1 input. The TSV ledgers supersede them. Bank statements may return in a later phase for reconciliation.
+6. **Folder convention established:**
+   - `input/` — project-requirements docs (read-only, git-tracked).
+   - `dph-dap/` — curated tabular ledger inputs (gitignored; real data).
+   - `resources/` — invoice PDFs archive (gitignored; real data).
+   - `output/` — generated DAP/KH TSVs, EPO XML, accountant reports (gitignored; will be added).
+7. **Open item update:** O1 (DPPO/DPFO output format) and O2 (categorization source for income tax) remain open and will be handled exploration-first in a later phase. VAT-centric TSVs do not cover income-tax data yet.
+
+**Task 0.1a verification:** session_notes.md now records invoice-handling decision, file formats, and role of each TSV. **PASSED.**
+
+### Task 0.2 — Playbook template selection
+
+**Selected:** adapt `_project-template` directly, borrowing the exploration-first pattern from `playbook-mcp-mono-repo`.
+
+**Rationale:**
+- `playbook-aws-serverless-multirepo` — rejected (R1/C1 forbid AWS; multi-repo is overkill for a single Python CLI).
+- `playbook-mcp-mono-repo` — partial fit (mono-repo, exploration-first, no deployment target) but purpose mismatch (generates MCP configs, not a CLI worker).
+- **Chosen path**: use `_project-template` as the structural baseline (progress.json bootstrap, 8 default commands, CLAUDE.md template shape) and add a small domain expansion:
+  - Single-repo layout (no `infrastructure/`, `backend/`, `frontend/`, `testing/` sub-repos).
+  - Exploration-first Phase 1 (pattern borrowed from mcp-mono-repo) because the real TSVs are our ground truth but the EPO XML schema still needs validation against FS ČR's current XSD.
+  - No AWS sections in CLAUDE.md / no `/check-aws` usage in v1.
+  - `tasks/phase_*.md` format borrowed directly from the aws-serverless playbook.
+
+**Task 0.2 verification:** template choice and rationale documented above. **PASSED.**
+
+### Session 2 pivot — add-work lifecycle adopted
+
+At end of Session 2, after reviewing my draft deliverables (IMPLEMENTATION_PLAN.md, CLAUDE.md, tasks/phase_1..5.md), user reversed direction:
+
+> "delete all you wrote. ad hoc tasks will be coming from me and we will formalise them one by one. just get on track add work lifecycle"
+
+**Actions taken:**
+- Deleted `IMPLEMENTATION_PLAN.md`, `CLAUDE.md`, `tasks/` folder (with all phase files) from disk.
+- `progress.json` updated:
+  - Tasks 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 marked `superseded` (they produced deliverables that were subsequently discarded).
+  - Phase 1–5 task blocks renamed `phase_N_*_superseded` with status `superseded`; all contained tasks marked `superseded`. Kept in file per append-only rule — audit trail only, do not treat as live work.
+  - Tasks 0.1, 0.1a, 0.2 remain `complete` (understanding tasks, no discarded deliverable).
+  - 0.9 left `pending` (user did not instruct deletion of examples folder under the new plan).
+  - `current_task` → `null`. New top-level field `workflow: "add-work lifecycle"` documents the shift.
+- `syndicate-playbooks-examples/` left in place (deletion was tied to the now-retracted full-Phase-0 plan).
+- `input/requirements.txt` deletion and `projects/brainmarket/` folder — user declined to address in this session; left untouched.
+
+**Forward workflow (confirmed):**
+1. User proposes a task.
+2. `/add-work` registers it in `progress.json` under a new phase or as a direct task.
+3. Work is done.
+4. `/update-progress` closes it.
+5. No upfront spec; no pre-planned phases.
+
+**Session 2 closure**
+
+| Repo | Status |
+|---|---|
+| orchestration (`.`) | needs_commit — `.gitignore`, `progress.json`, `session_notes.md` modified; `input/requirements.txt` deleted; spec/CLAUDE.md/tasks pending delete-commit. |
+
+Context for next session: `/start-session` sees `current_task: null` → expect user to specify the first add-work task. `dph-dap/` real data is available and understood (see Task 0.1a breakdown above) if needed.
+
+

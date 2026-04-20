@@ -1,18 +1,17 @@
 {
   "version": "2.0",
   "project": "hyl-finance",
-  "description": "Local Python CLI worker for Czech government and tax filing automation (DPH + Kontrolní hlášení + DPPO/DPFO). Produces filing artefacts (XML/PDF) and accountant reports from bank statements, manual CSV/Excel, and invoice documents. Flat-file persistence, no AWS, no portal login in v1.",
+  "description": "Local Python CLI worker for Czech government and tax filing automation. Work is being driven ad-hoc via /add-work (incremental task lifecycle, not upfront spec).",
   "created_at": "2026-04-20",
   "last_updated": "2026-04-20",
-  "last_session_summary": "Session 1: Task 0.1 complete. Read input/requirements.txt, explored playbook examples, gathered gap-filling requirements from user (jurisdiction, language, trigger, deliverables, processes, data sources, persistence, secrets). Discovered mid-session that resources/ contains invoice folders — added to .gitignore and flagged as additional data source.",
-
+  "last_session_summary": "Session 2: attempted full Phase 0 (spec + CLAUDE.md + task files); user reversed direction end-of-session. Pivoted to add-work lifecycle: spec, CLAUDE.md, and tasks/ deleted; 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 marked superseded; Phase 1-5 task blocks marked superseded (kept for audit). 0.1, 0.1a, 0.2 remain complete (understanding work, no discarded deliverables).",
   "phases": {
     "phase_0_planning": {
       "name": "Planning & Setup",
       "status": "in_progress",
       "started_at": "2026-04-20",
       "completed_at": null,
-      "description": "Create implementation spec, get approval, generate tasks",
+      "description": "Phase 0 REDEFINED: after Session 2, user directed project onto /add-work incremental lifecycle. Original upfront-spec flow (tasks 0.3-0.8) is superseded. Only understanding tasks (0.1, 0.1a, 0.2) remain useful. 0.9 (delete examples folder) is deferred pending user decision.",
       "tasks": [
         {
           "id": "0.1",
@@ -22,79 +21,82 @@
           "completed_at": "2026-04-20",
           "size": "medium",
           "verify": "session_notes.md contains per-file summary of EVERY document in input/ with extracted requirements, constraints, and decisions",
-          "verify_result": "PASSED - session_notes.md contains per-file breakdown of input/requirements.txt plus gap-filling answers from user covering jurisdiction, language, trigger, deliverables, processes, data sources, persistence, secrets.",
-          "artifacts": ["session_notes.md"],
-          "notes": "CRITICAL: Read EVERY file in input/ folder thoroughly. For each document: (1) identify its type and purpose, (2) extract ALL requirements, constraints, decisions, and domain terms, (3) note any external URLs that need fetching via WebFetch. Write a per-file breakdown in session_notes.md showing what each file contains and how it will inform the spec. requirements.md (or equivalent) is the PRIMARY document - every requirement in it must be addressed. Do NOT skim or summarize loosely - extract specifics. Then explore playbook examples to find best match. SESSION 1 NOTE: input/ contained only requirements.txt (2 lines). Requirements were too sparse, so user answered 8 gap questions in-session — those answers recorded in session_notes.md are authoritative requirements alongside requirements.txt. Mid-session, resources/ (invoice folders) appeared on disk — added to .gitignore and noted as additional data source beyond what was covered in gap Q6. A follow-up gap task 0.1a is added to confirm invoice handling before spec drafting."
+          "verify_result": "PASSED",
+          "artifacts": ["session_notes.md"]
         },
         {
           "id": "0.1a",
           "name": "Confirm invoice data-source handling",
-          "status": "pending",
+          "status": "complete",
+          "started_at": "2026-04-20",
+          "completed_at": "2026-04-20",
           "size": "small",
           "depends_on": ["0.1"],
-          "added_reason": "resources/Přijaté Faktury/ and resources/Vydané faktury/ appeared during session 1 after gap Q6 was already answered. Need to confirm: (1) are invoices an in-scope data source for v1, (2) what file formats (PDF, ISDOC, XML, images)?, (3) how do invoices relate to VAT calculation vs. just being archived? — before drafting spec in 0.3.",
-          "verify": "session_notes.md records invoice-handling decision (in scope / out of scope / deferred) with formats and role"
+          "added_reason": "resources/ + dph-dap/ with real invoice data appeared during sessions 1 and 2; scope needed confirming.",
+          "verify": "session_notes.md records invoice-handling decision (in scope / out of scope / deferred) with formats and role",
+          "verify_result": "PASSED - TSVs in dph-dap/ understood; domain facts (DAP line numbers, KH sections, YYYY_Q period format, 21% VAT, CZK/EUR currencies) extracted. Note: broader spec using this data was later discarded by user directive.",
+          "artifacts": ["session_notes.md"]
         },
         {
           "id": "0.2",
           "name": "Select playbook template and document rationale",
-          "status": "pending",
+          "status": "complete",
+          "started_at": "2026-04-20",
+          "completed_at": "2026-04-20",
           "size": "small",
+          "depends_on": ["0.1"],
           "verify": "Template selection documented with reasons",
-          "depends_on": ["0.1"]
+          "verify_result": "PASSED - rationale in session_notes.md. Note: under the new add-work lifecycle, template choice is informational only; no scaffolding was retained.",
+          "artifacts": ["session_notes.md"]
         },
         {
           "id": "0.3",
           "name": "Draft IMPLEMENTATION_PLAN.md sections 1-3",
-          "status": "pending",
+          "status": "superseded",
+          "superseded_at": "2026-04-20",
+          "superseded_reason": "User retracted upfront-spec approach at end of Session 2 ('delete all you wrote. ad hoc tasks will be coming from me and we will formalise them one by one. just get on track add work lifecycle'). IMPLEMENTATION_PLAN.md file deleted.",
           "size": "medium",
-          "verify": "IMPLEMENTATION_PLAN.md exists with Overview, Architecture, Technical Specs",
-          "depends_on": ["0.2"],
-          "notes": "Project Overview, Architecture, Technical Specifications. CRITICAL: Only include CONFIRMED items. Speculative content (candidate instances, unverified schemas) belongs in tasks, not spec. 100 lines confirmed > 600 lines speculative. TRACEABILITY: Every section must be grounded in input materials from task 0.1. Reference which input documents informed each decision. If input/ contains requirements.md, it is the PRIMARY source - the spec must address every requirement in it. Do not write from general knowledge when input materials provide specifics."
+          "verify": "IMPLEMENTATION_PLAN.md exists with Overview, Architecture, Technical Specs"
         },
         {
           "id": "0.4",
-          "name": "Draft IMPLEMENTATION_PLAN.md sections 4-7",
-          "status": "pending",
-          "size": "medium",
-          "verify": "IMPLEMENTATION_PLAN.md complete with all sections",
-          "depends_on": ["0.3"],
-          "notes": "Phases, AWS Resources, Repository Structure, Success Criteria. For unknown domains, use exploration-first: Phase 1 = 'Setup & Exploration' to discover actual structure before defining detailed phases. TRACEABILITY: Each phase must trace back to requirements from input materials. Add a References section listing ALL input documents and how each influenced the spec. Every file in input/ must be accounted for."
+          "name": "Draft IMPLEMENTATION_PLAN.md sections 4-11",
+          "status": "superseded",
+          "superseded_at": "2026-04-20",
+          "superseded_reason": "See 0.3. IMPLEMENTATION_PLAN.md deleted.",
+          "size": "medium"
         },
         {
           "id": "0.5",
           "name": "Present spec to user and get approval",
-          "status": "pending",
-          "size": "small",
-          "verify": "User explicitly approved the spec",
-          "depends_on": ["0.4"],
-          "notes": "BLOCKING: Do not proceed until user says 'approved' or equivalent"
+          "status": "superseded",
+          "superseded_at": "2026-04-20",
+          "superseded_reason": "No spec to approve under add-work lifecycle. The approval mechanism going forward is per-task via /add-work (user approves each proposed task individually).",
+          "size": "small"
         },
         {
           "id": "0.6",
           "name": "Create project CLAUDE.md",
-          "status": "pending",
-          "size": "small",
-          "verify": "CLAUDE.md exists with filled placeholders",
-          "depends_on": ["0.5"],
-          "notes": "Create CLAUDE.md from template, fill in project-specific values"
+          "status": "superseded",
+          "superseded_at": "2026-04-20",
+          "superseded_reason": "See 0.3. CLAUDE.md file deleted. Global ~/.claude instructions plus progress.json notes are sufficient for the add-work lifecycle.",
+          "size": "small"
         },
         {
           "id": "0.7",
           "name": "Generate Phase 1 tasks",
-          "status": "pending",
-          "size": "medium",
-          "verify": "tasks/phase_1_*.md exists, progress.json has Phase 1 tasks",
-          "depends_on": ["0.6"]
+          "status": "superseded",
+          "superseded_at": "2026-04-20",
+          "superseded_reason": "See 0.3. tasks/ folder deleted. Future tasks added ad-hoc via /add-work.",
+          "size": "medium"
         },
         {
           "id": "0.8",
           "name": "Generate remaining phase tasks",
-          "status": "pending",
-          "size": "medium",
-          "verify": "All phase task files exist, progress.json complete",
-          "depends_on": ["0.7"],
-          "notes": "May span multiple sessions if many phases"
+          "status": "superseded",
+          "superseded_at": "2026-04-20",
+          "superseded_reason": "See 0.7. tasks/ folder deleted.",
+          "size": "medium"
         },
         {
           "id": "0.9",
@@ -102,29 +104,85 @@
           "status": "pending",
           "size": "small",
           "verify": "syndicate-playbooks-examples/ removed, git log shows Phase 0 complete commit",
-          "depends_on": ["0.8"],
-          "notes": "Examples no longer needed. Remove dir, update .gitignore, commit."
+          "notes": "Deferred. User retracted the 'finish Phase 0 this session' directive; whether to delete the examples folder is no longer tied to an approval. Leave pending; user can trigger whenever."
         }
       ],
       "artifacts": []
+    },
+    "phase_1_exploration_superseded": {
+      "name": "Setup & Exploration (SUPERSEDED)",
+      "status": "superseded",
+      "superseded_at": "2026-04-20",
+      "superseded_reason": "Phase and all contained tasks were produced as part of superseded 0.7/0.8. Kept in file per append-only rule; do NOT treat as live work.",
+      "tasks": [
+        {"id": "1.1", "name": "Python project skeleton", "status": "superseded", "size": "small"},
+        {"id": "1.2", "name": "TSV ledger parser", "status": "superseded", "size": "medium"},
+        {"id": "1.3", "name": "DAP aggregation & validation", "status": "superseded", "size": "medium"},
+        {"id": "1.4", "name": "KH section extraction & validation", "status": "superseded", "size": "medium"},
+        {"id": "1.5", "name": "Confirm current EPO XML schemas", "status": "superseded", "size": "small"},
+        {"id": "1.6", "name": "Phase 1 close: consolidated report", "status": "superseded", "size": "small"}
+      ]
+    },
+    "phase_2_dph_kh_superseded": {
+      "name": "DPH + KH generation (SUPERSEDED)",
+      "status": "superseded",
+      "superseded_at": "2026-04-20",
+      "superseded_reason": "See phase_1_exploration_superseded.",
+      "tasks": [
+        {"id": "2.1", "name": "DPHDP3 VAT-return XML emitter", "status": "superseded", "size": "medium"},
+        {"id": "2.2", "name": "DPHKH1 Control-Statement XML emitter", "status": "superseded", "size": "medium"},
+        {"id": "2.3", "name": "Combined 'all' subcommand", "status": "superseded", "size": "small"}
+      ]
+    },
+    "phase_3_reports_superseded": {
+      "name": "Accountant reports (SUPERSEDED)",
+      "status": "superseded",
+      "superseded_at": "2026-04-20",
+      "superseded_reason": "See phase_1_exploration_superseded.",
+      "tasks": [
+        {"id": "3.1", "name": "Excel report writer", "status": "superseded", "size": "medium"}
+      ]
+    },
+    "phase_4_income_tax_superseded": {
+      "name": "DPPO / DPFO income tax (SUPERSEDED)",
+      "status": "superseded",
+      "superseded_at": "2026-04-20",
+      "superseded_reason": "See phase_1_exploration_superseded.",
+      "tasks": [
+        {"id": "4.1", "name": "Scope discovery", "status": "superseded", "size": "small"},
+        {"id": "4.2", "name": "Add implementation tasks per confirmed scope", "status": "superseded", "size": "small"}
+      ]
+    },
+    "phase_5_hardening_superseded": {
+      "name": "Hardening & v1 release (SUPERSEDED)",
+      "status": "superseded",
+      "superseded_at": "2026-04-20",
+      "superseded_reason": "See phase_1_exploration_superseded.",
+      "tasks": [
+        {"id": "5.1", "name": "Unit tests for mapping rules", "status": "superseded", "size": "medium"},
+        {"id": "5.2", "name": "Reduced-rate VAT support", "status": "superseded", "size": "medium"},
+        {"id": "5.3", "name": "Row-number error messages", "status": "superseded", "size": "small"},
+        {"id": "5.4", "name": "README.md", "status": "superseded", "size": "small"},
+        {"id": "5.5", "name": "Release tag v1.0.0", "status": "superseded", "size": "small"}
+      ]
     }
   },
-
-  "current_task": "0.1a",
-
+  "current_task": null,
+  "workflow": "add-work lifecycle: user proposes each next task ad-hoc; /add-work registers it; /update-progress closes it. No upfront spec or phase plan.",
   "git_repos": {
     "orchestration": {
       "local": ".",
       "remote": null,
       "status": "local_only",
-      "notes": "Must be git repo from start. Commit after each task. No remote configured yet."
+      "notes": "Single mono-repo. No remote configured."
     }
   },
-
   "context_hints": {
     "examples_path": "syndicate-playbooks-examples",
-    "template_path": "syndicate-playbooks-examples/_project-template"
+    "primary_input_dir": "dph-dap",
+    "python_preference": ">=3.12",
+    "no_aws": true,
+    "no_venv": true
   },
-
   "blockers": []
 }

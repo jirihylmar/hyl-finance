@@ -1,2 +1,0 @@
-This is the local worker. No aws connection needed for now.
-Primary gov related and tax issues will be processed and automated here.
