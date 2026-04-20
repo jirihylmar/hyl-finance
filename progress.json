@@ -291,6 +291,47 @@
         "dph-dap/Fakturace - KH_A4_vydane_nad_10k.tsv (gitignored)",
         ".claude/commands/parse-invoices.md"
       ]
+    },
+    "phase_2_vydane_faktury": {
+      "name": "Příprava vydaných faktur",
+      "status": "in_progress",
+      "started_at": "2026-04-20",
+      "completed_at": null,
+      "description": "Příprava vydaných faktur a jejich příloh (výkazy prací) pro jednotlivé odběratele / etapy. První etapa: faktura 20260003 pro BRAINMARKET s.r.o., období 1.9.2025–17.4.2026, předmět = vývoj/programování/testování SW komponent pro systémy výroby a prodeje. Pracovní prostor: projects/brainmarket/etapa-1/. Zdrojové repozitáře (VaV výstupy) mimo tento repo: ~/aps-brm-products-playbook, ~/app-brm-manufacturing-dictionary, ~/app-brm-manufacturing-products.",
+      "tasks": [
+        {
+          "id": "2.1",
+          "name": "Analýza repo ~/aps-brm-products-playbook — extrakce AWS zdrojů, git zdrojů, komponent a popisu prací za 1.9.2025–17.4.2026",
+          "status": "pending",
+          "size": "small",
+          "added_at": "2026-04-20",
+          "added_reason": "User /add-work request: příprava výkazu prací jako přílohy faktury 20260003 pro BRAINMARKET.",
+          "verify": "session_notes.md obsahuje pro tento repo: git remote, seznam hlavních AWS zdrojů (lambda/S3/DDB/…), klíčové komponenty/moduly vytvořené v období, 2–4 věty stručného popisu prací"
+        },
+        {
+          "id": "2.2",
+          "name": "Analýza repo ~/app-brm-manufacturing-dictionary a ~/app-brm-manufacturing-products — extrakce AWS zdrojů, git zdrojů, komponent a popisu prací za 1.9.2025–17.4.2026",
+          "status": "pending",
+          "size": "small",
+          "added_at": "2026-04-20",
+          "added_reason": "Viz 2.1.",
+          "verify": "session_notes.md obsahuje pro oba repo: git remote, hlavní AWS zdroje, klíčové komponenty, 2–4 věty popisu prací"
+        },
+        {
+          "id": "2.3",
+          "name": "Sestavit přílohu faktury 'výkaz prací' (CZ) do projects/brainmarket/etapa-1/",
+          "status": "pending",
+          "size": "medium",
+          "depends_on": ["2.1", "2.2"],
+          "added_at": "2026-04-20",
+          "added_reason": "Viz 2.1.",
+          "verify": "Soubor projects/brainmarket/etapa-1/vykaz-prac.md (nebo .pdf) existuje, je v češtině, obsahuje: (a) záhlaví s identifikací dodavatele/odběratele a období 1.9.2025–17.4.2026, (b) seznam hlavních AWS zdrojů, (c) git repozitáře (3 zdroje), (d) vytvořené komponenty, (e) stručný popis provedených prací, (f) explicitní větu o tom, že cena zahrnuje také konzultace a testování na vlastní infrastruktuře dodavatele"
+        }
+      ],
+      "artifacts": [
+        "projects/brainmarket/etapa-1/Vydaná faktura - 20260003-2.pdf (existing draft)",
+        "projects/brainmarket/etapa-1/vykaz-prac.md (to be created by 2.3)"
+      ]
     }
   },
   "current_task": null,

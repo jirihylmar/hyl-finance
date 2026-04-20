@@ -418,4 +418,26 @@ Skill covers:
 - `git_repos.orchestration.status` updated from `local_only` → `pushed` in `progress.json`.
 - Privacy stance: real financial data in `dph-dap/` is gitignored and never pushed. Tracked files (`session_notes.md`, `progress.json`, `.claude/commands/parse-invoices.md`) contain supplier DIČs, invoice numbers, and CZK totals — acceptable because the GitHub repo is private. Revisit redaction if repo visibility ever changes.
 
+### Work Added — Phase 2 / BRAINMARKET etapa-1
+
+- **Source:** `/add-work` request from user.
+- **Reason:** Prepare `výkaz prací` attachment for issued invoice 20260003 to BRAINMARKET s.r.o. (DIČ CZ03488578), period 1.9.2025–17.4.2026. Subject: development/programming/testing of SW components for manufacturing & sales systems.
+- **Supplier:** Jiří Hylmar, IČ 49714473, DIČ CZ7305080431, Chouzavá 210, 252 10 Voznice.
+- **Workspace:** `projects/brainmarket/etapa-1/` (already contains draft `Vydaná faktura - 20260003-2.pdf`).
+- **Source repos to analyse (outside this repo):**
+  - `~/aps-brm-products-playbook`
+  - `~/app-brm-manufacturing-dictionary`
+  - `~/app-brm-manufacturing-products`
+- **New phase:** `phase_2_vydane_faktury` — "Příprava vydaných faktur", status `in_progress` (runs in parallel with Phase 1 intake).
+- **New tasks:**
+  - `2.1` — Analyse `aps-brm-products-playbook` (AWS + git + components + prose).
+  - `2.2` — Analyse `app-brm-manufacturing-dictionary` + `app-brm-manufacturing-products`.
+  - `2.3` — Compose Czech `výkaz prací` attachment (depends on 2.1 + 2.2).
+- **Required content in final attachment (per user):**
+  1. AWS resources used.
+  2. Git repositories.
+  3. Components created.
+  4. Brief description of work performed.
+  5. Explicit statement: "cena zahrnuje také konzultace a testování na vlastní infrastruktuře dodavatele".
+- **Privacy note:** `projects/` is **not** in `.gitignore`. This will contain real invoices and client names. Recommendation raised to user to add `projects/` to `.gitignore` (same principle as `dph-dap/`) — pending user decision.
 
