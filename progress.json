@@ -297,35 +297,45 @@
       "status": "in_progress",
       "started_at": "2026-04-20",
       "completed_at": null,
+      "etapa_1_status": "complete (vykaz-prac.md ready); faktura 20260003 still to be intaked into vydane_faktury.tsv by future Phase 1 tranche",
       "description": "Příprava vydaných faktur a jejich příloh (výkazy prací) pro jednotlivé odběratele / etapy. První etapa: faktura 20260003 pro BRAINMARKET s.r.o., období 1.9.2025–17.4.2026, předmět = vývoj/programování/testování SW komponent pro systémy výroby a prodeje. Pracovní prostor: projects/brainmarket/etapa-1/. Zdrojové repozitáře (VaV výstupy) mimo tento repo: ~/aps-brm-products-playbook, ~/app-brm-manufacturing-dictionary, ~/app-brm-manufacturing-products.",
       "tasks": [
         {
           "id": "2.1",
           "name": "Analýza repo ~/aps-brm-products-playbook — extrakce AWS zdrojů, git zdrojů, komponent a popisu prací za 1.9.2025–17.4.2026",
-          "status": "pending",
+          "status": "complete",
+          "started_at": "2026-04-20",
+          "completed_at": "2026-04-20",
           "size": "small",
           "added_at": "2026-04-20",
           "added_reason": "User /add-work request: příprava výkazu prací jako přílohy faktury 20260003 pro BRAINMARKET.",
-          "verify": "session_notes.md obsahuje pro tento repo: git remote, seznam hlavních AWS zdrojů (lambda/S3/DDB/…), klíčové komponenty/moduly vytvořené v období, 2–4 věty stručného popisu prací"
+          "verify": "session_notes.md obsahuje pro tento repo: git remote, seznam hlavních AWS zdrojů (lambda/S3/DDB/…), klíčové komponenty/moduly vytvořené v období, 2–4 věty stručného popisu prací",
+          "verify_result": "PASSED - git remote = github.com/DigitalHorizonCz/aps-brm-products-playbook; AWS acct 975050190402 eu-central-1; 9 Lambdas + S3 + DDB + Athena + Secrets Manager + Step Functions + API GW + IAM; 375 commits in window, ~20k insertions; Phases 45–56 detailed in session_notes."
         },
         {
           "id": "2.2",
           "name": "Analýza repo ~/app-brm-manufacturing-dictionary a ~/app-brm-manufacturing-products — extrakce AWS zdrojů, git zdrojů, komponent a popisu prací za 1.9.2025–17.4.2026",
-          "status": "pending",
+          "status": "complete",
+          "started_at": "2026-04-20",
+          "completed_at": "2026-04-20",
           "size": "small",
           "added_at": "2026-04-20",
           "added_reason": "Viz 2.1.",
-          "verify": "session_notes.md obsahuje pro oba repo: git remote, hlavní AWS zdroje, klíčové komponenty, 2–4 věty popisu prací"
+          "verify": "session_notes.md obsahuje pro oba repo: git remote, hlavní AWS zdroje, klíčové komponenty, 2–4 věty popisu prací",
+          "verify_result": "PASSED - dictionary: github.com/DigitalHorizonCz/app-brm-manufacturing-dictionary, S3 manufacturing-thesauri bucket + Glue DB + 6 crawlers + Athena, 53 commits in window. products: github.com/DigitalHorizonCz/app-brm-manufacturing-products, 11 Lambdas + 5 STFs + DDB bpss-product-versions + API GW qcnli206w4 + Cognito + Athena + Amplify, 298 commits in window. Total 3-repo commits in period = 726."
         },
         {
           "id": "2.3",
           "name": "Sestavit přílohu faktury 'výkaz prací' (CZ) do projects/brainmarket/etapa-1/",
-          "status": "pending",
+          "status": "complete",
+          "started_at": "2026-04-20",
+          "completed_at": "2026-04-20",
           "size": "medium",
           "depends_on": ["2.1", "2.2"],
           "added_at": "2026-04-20",
           "added_reason": "Viz 2.1.",
-          "verify": "Soubor projects/brainmarket/etapa-1/vykaz-prac.md (nebo .pdf) existuje, je v češtině, obsahuje: (a) záhlaví s identifikací dodavatele/odběratele a období 1.9.2025–17.4.2026, (b) seznam hlavních AWS zdrojů, (c) git repozitáře (3 zdroje), (d) vytvořené komponenty, (e) stručný popis provedených prací, (f) explicitní větu o tom, že cena zahrnuje také konzultace a testování na vlastní infrastruktuře dodavatele"
+          "verify": "Soubor projects/brainmarket/etapa-1/vykaz-prac.md (nebo .pdf) existuje, je v češtině, obsahuje: (a) záhlaví s identifikací dodavatele/odběratele a období 1.9.2025–17.4.2026, (b) seznam hlavních AWS zdrojů, (c) git repozitáře (3 zdroje), (d) vytvořené komponenty, (e) stručný popis provedených prací, (f) explicitní větu o tom, že cena zahrnuje také konzultace a testování na vlastní infrastruktuře dodavatele",
+          "verify_result": "PASSED - projects/brainmarket/etapa-1/vykaz-prac.md created (11145 bytes). Contains all required sections: identification header (dodavatel IČ 49714473 / odběratel BRAINMARKET IČ 03488578, period 1.9.2025-17.4.2026), 3 GitHub repos (DigitalHorizonCz), AWS account 975050190402 eu-central-1 with detailed resource breakdown per repo (Lambdas, Step Functions, S3, DynamoDB, Athena, API GW, Cognito, Amplify, Glue), components breakdown per repo, 4-paragraph Czech prose summary, explicit clause: 'Cena fakturovaná za uvedené období zahrnuje rovněž konzultace a testování prováděné dodavatelem na jeho vlastní infrastruktuře.'"
         }
       ],
       "artifacts": [

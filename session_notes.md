@@ -441,3 +441,52 @@ Skill covers:
   5. Explicit statement: "cena zahrnuje také konzultace a testování na vlastní infrastruktuře dodavatele".
 - **Privacy note:** `projects/` is **not** in `.gitignore`. This will contain real invoices and client names. Recommendation raised to user to add `projects/` to `.gitignore` (same principle as `dph-dap/`) — pending user decision.
 
+### Task 2.1 — aps-brm-products-playbook (analysis)
+
+- **Git remote**: `https://github.com/DigitalHorizonCz/aps-brm-products-playbook.git`
+- **Purpose**: CDK-based AWS orchestration + Python tooling for Brainmarket Product Specification System (BPSS). Ingests supplier spec docs (Rosemed DOCX, Vitalogy PDF) → schema-driven EAV store (S3 + Athena) → translates to 11 languages via Anthropic Claude → renders Handlebars → HTML/TXT/PDF.
+- **AWS account**: `975050190402`, region `eu-central-1`.
+- **AWS resources**: 9 Lambdas (`bpss_upload_trigger`, `bpss_upload_handler`, `bpss_parser_rosemed`, `bpss_parser_vitalogy`, `bpss_validation`, `bpss_enrich_bmt`, `bpss_render_specifications`, `bpss_render_pdf`, `bpss_translation`); S3 (schema TSV, templates, raw uploads, EAV TSV, rendered artifacts); DynamoDB (product metadata, ingestion status, label registry); Athena (EAV queries); Secrets Manager (Anthropic key); Step Functions (parser → validation → enrichment → render → translate); API Gateway (upload endpoint); IAM.
+- **Main components**: `backend/` (Lambda code + schemas + Handlebars templates), `infrastructure/` (CDK Python: InfrastructureStack, IngestStack, RenderStack, TranslationStack), `tools/` (70+ Python scripts: audits, batch import/export, phase fixers, schema consistency, translation), `docs/`.
+- **Commits in window**: 375 (no-merges), ~20k insertions. Substantive: Phase 56 (MCP Connector Foundation), Phase 55 (backup S3 removal), Phase 54 (schema-coverage helpers), Phase 53 (composition dose-division audit/surgery across 145 products × 11 langs), Phase 52 (descriptor cleanup), Phase 51 (PORTION_SIZE consolidation + LLM translation), Phase 50 (descriptor architectural fix), Phase 49 (BMT metadata denormalization), Phase 48 (NRV dose-division for Vitalogy), Phase 47 (Label DynamoDB + backfill), Phase 46 (EAV mfg_info_code), Phase 45 (extended metadata fix).
+
+### Task 2.2 — app-brm-manufacturing-dictionary + app-brm-manufacturing-products (analysis)
+
+#### app-brm-manufacturing-dictionary
+
+- **Git remote**: `https://github.com/DigitalHorizonCz/app-brm-manufacturing-dictionary.git`
+- **Purpose**: Config-driven multilingual thesaurus management for BrainMarket — synchronizes dictionary data between Google Sheets (editorial) and AWS (production DB). 8–9 active thesauri, 23–24 EU languages, automated BMT code generation, polyhierarchy, AI-assisted entries.
+- **AWS account**: `975050190402`, region `eu-central-1`.
+- **AWS resources**: S3 `manufacturing-thesauri-extite-ss1-infpro-975050190402` (5 data tables + backups + mirrors + Athena results); Glue DB `manufacturing_thesauri_brm_v1_975050190402` with 6 crawlers (descriptors, translations, hierarchy, codes, metadata, notes); Athena; IAM role `GlueCrawlerRole-BRM-Manufacturing-Products`. Partitioning by `thesaurus_id` (Hive-style) + notes by `source_id`.
+- **Main components**: `scripts/google_sheets_workflow/` (5-step pipeline: download → update_data → upload_tsv_to_s3 → setup_crawlers → mirror_dictionaries + restore_backup); `dictionary_editor/` (AI-assisted entry tool, LLM translations, cross-dictionary impact); `docs/thesauri-mcp/` + 5 domain-specific MCP KBs (commons, components, health-claims, nutrition-claims, national-restrictions); `config.json` (centralized AWS/Sheets/thesauri/languages/legislation/EAV config).
+- **Commits in window**: 53 (no-merges), ~4.5k insertions / ~4.5k deletions. Substantive: S3 Hive partition loader + dictionary-editor session fix, DRI + compliance checks to MCP KB, notes partition for BMT_NFOOD, Phase 7 MCP connector KB rewrite (39/39 tests), national_restrictions + notes table (Phase 6, BMT_NATL_CS_1.0 for Czech Decree 58/2018), partition by thesaurus_id + metadata EAV restructure, BMT_COMP_1.0 SZPI merge (2634 rows), config.json semi-EAV + legislation hierarchy refactor, config-driven language handling, `/dictionary-editor` skill, architecture diagram v1.7, suppliers_values dictionary.
+
+#### app-brm-manufacturing-products
+
+- **Git remote**: `https://github.com/DigitalHorizonCz/app-brm-manufacturing-products.git`
+- **Purpose**: BRAINMARKET Specifications System (BMPSS) — serverless platform managing and rendering product specifications across three workflows (Manufacturing, Rosemed resale, Vitalogy resale). Unified publish pipeline (since Phase 6) via Lambda + Step Functions; HTML/PDF rendering; DynamoDB product registry; Cognito-authenticated per-workspace access.
+- **AWS account**: `975050190402` (profile `brm-734`), region `eu-central-1`.
+- **AWS resources**: 11 Lambdas (render-specifications, render-pdf, publish-from-sheets, backup-s3, keep-latest, copy-pdf, update-schema, check-latest, list-latest, source-template, bpss render shim); 5 Step Functions (publish STFs, backup, render triggers, PDF trigger); DynamoDB `bpss-product-versions`; S3 `products-extite-ss0-infpro-975050190402` + restore bucket; API Gateway `qcnli206w4` (7 endpoints `/api/publish`, `/api/check`, `/api/list`, `/api/template`, `/api/render`, `/api/schema-update`, `/api/status`); Cognito user pool `eu-central-1_mxwISDF6P` + identity pool (custom `custom:bss_workspace` attr); Athena (`manufacturing_products_brm_v0_975050190402`, `manufacturing_thesauri_brm_v1_975050190402`); CloudWatch; Amplify (frontend hosting).
+- **Main components**: `aws-deployment/frontend/` (4 static pages: Welcome, Pipelines-PM, Viewer-PM, Admin), `aws-deployment/scripts/` (11 Lambda dirs), `aws-deployment/web-api/` (API GW + Lambda proxy + Cognito), `aws-deployment/shared/` (smart_logger), `docs/architecture/`, 4 MCP connector KBs (bss-help-read, products-read, rendered-read, standardize-specification), `cognito/` (user/group/workspace tool), `helpers/` (validators), `assets/`.
+- **Commits in window**: 298 (no-merges), ~960 files, ~227k insertions. Substantive: serverless implementation (fc1f8dc), web interface + auth (8cb44c1), Phase 14 products-read MCP (canonical fields + UX), Phase 13 rendered-read MCP → DynamoDB, Phase 17 standardize-specification MCP, Phase 15 render Lambda boundary split, Phase 11 PM Viewer + `/api/pm/viewer-data`, Phase 17.9 standardize-specification fixes, Task 1.35/1.36 PM Viewer EAN column + status filter, Phase 6 BPSS publish STF partition registration + information_version propagation, cross-database publish race fix, Glue header-skip count fix.
+
+#### Cross-cutting observations
+- All three repos in GitHub org `DigitalHorizonCz`.
+- Single AWS account `975050190402`, single region `eu-central-1`.
+- Shared Athena DB naming pattern `…_brm_…_975050190402`.
+- Total commits in period across 3 repos: **375 + 53 + 298 = 726 commits (no-merges)**.
+
+### Task 2.3 — vykaz-prac.md composed
+
+- **Output file:** `projects/brainmarket/etapa-1/vykaz-prac.md` (11,145 B).
+- **Language:** Czech.
+- **Structure:**
+  1. Identifikační údaje (dodavatel/odběratel, období 1.9.2025–17.4.2026, předmět).
+  2. Zdrojové repozitáře (3 × DigitalHorizonCz GitHub, 726 commitů celkem).
+  3. AWS infrastruktura (účet `975050190402`, region `eu-central-1`) rozepsaná per-repo: BPSS (9 Lambdas + Step Functions + S3 + DDB + Athena + Secrets + API GW + IAM + CDK stacks); Dictionary (S3 + Glue DB + 6 crawlers + Athena + IAM); BMPSS (11 Lambdas + 5 STFs + DDB `bpss-product-versions` + S3 + API GW `qcnli206w4` + Cognito `eu-central-1_mxwISDF6P` + Athena + CloudWatch + Amplify).
+  4. Vytvořené komponenty per-repo (adresářová struktura + účel).
+  5. Popis provedených prací (4 odstavce): konsolidace BPSS (Phase 45–56), modernizace tezaurů a MCP infrastruktura, 17 fází vývoje BMPSS + cross-workflow architektura, testování a konzultace.
+  6. Poznámka k ceně: explicitní věta "Cena fakturovaná za uvedené období zahrnuje rovněž konzultace a testování prováděné dodavatelem na jeho vlastní infrastruktuře."
+- **Untracked by design:** `projects/` is not in `.gitignore`; the output file is on disk but not committed. User to decide whether to gitignore `projects/` (parity with `dph-dap/`) or let it be tracked (private repo policy).
+- **Follow-up:** the issued invoice 20260003 itself will be intaken into `Fakturace - vydane_faktury.tsv` in a future Phase 1 tranche once user runs `/parse-invoices` on `dph-dap/Vydané faktury/2026/`.
+
