@@ -490,3 +490,77 @@ Skill covers:
 - **Untracked by design:** `projects/` is not in `.gitignore`; the output file is on disk but not committed. User to decide whether to gitignore `projects/` (parity with `dph-dap/`) or let it be tracked (private repo policy).
 - **Follow-up:** the issued invoice 20260003 itself will be intaken into `Fakturace - vydane_faktury.tsv` in a future Phase 1 tranche once user runs `/parse-invoices` on `dph-dap/Vydané faktury/2026/`.
 
+---
+
+## Session 4 — 2026-04-20
+
+### Completed This Session
+
+Multi-round refinement of the Phase 2 etapa-1 work-report attachment followed by skill extraction. Task 2.3 (already marked complete in prior session) was re-worked for quality based on user feedback; no new progress.json tasks created — work was refinement + meta.
+
+### User feedback and applied corrections (condensed ping-pong log)
+
+| Round | User feedback | Fix |
+|---|---|---|
+| 1 | "obsah je dostupný na gitu ... jsi líný projít co bylo uděláno, tak to nedělej ... povrchní analýza, hloubkový protokol — má to být naopak" | Spawned deep-read `Explore` agents per repo with business-level prompts; rewrote protocol short and capability-focused |
+| 2 | "vynechat marketingové proklamace; poloprovoz, ne finální; negativní vymezování je nevhodné; některé věci nepravdivé (jedním kliknutím...); čeština hrozná" | Removed "from days to minutes" + all 3 "Co nahrazuje" sections; "production" → "poloprovoz"; softened absolutes; fixed Czech calques |
+| 3 | "switch to English — CS/EN mix not readable; table of access points invisible; unbalanced detail" | Full English rewrite; bullets instead of empty-header table; balanced bullet count per system |
+| 4 | Inline `/*` notes (8): (a) add components dictionary standardisation for personalised dietary supplements; (b) redact MCP URL; (c) "four output types" → examples + dynamic Handlebars; (d) "two name rules" → examples; (e) regulatory sources had to be populated first; (f) async detail "5 items / 29 s" is inappropriate; (g) "shared Athena DB / schema layer" is untrue; (h) redact MCP URL in Inter-system too | All 8 applied; all `/*` markers stripped |
+| 5 | "use MCP connector directly, this is important" | Added `.mcp.json`; after user restart, queried live `help_get_solution_overview` + per-connector `_get_help` on 11 MCP instances; globally rewrote protocol from authoritative data (exact connector inventory, full legislation list, precise language-coverage caveats) |
+| 6 | "missing line breaks ... some font rendering issues" | Identification block → blank-line-separated paragraphs; switched pandoc mainfont from DejaVu Serif to Latin Modern Roman |
+| 7 | "mention it's prototype, integration continues; raw Amplify URL not digital-horizon.cz; disclose that DigitalHorizonCz is Supplier's pseudonymous org" | Summary now says "prototype, integration continues"; URL reverted to `main.dzx5nm1pynwm7.amplifyapp.com`; repo list discloses Supplier-operated org |
+| 8 | "name files as Vydaná faktura - 20260003-2 - příloha Výkaz prací.*" | Renamed .md/.pdf/.docx to match invoice convention |
+| 9 | "produce all in English, including the skill if not specifically requested otherwise" | Stripped remaining CZ term mentions in skill; kept Czech filename convention + `etapa-N` path since they mirror existing on-disk artefacts |
+
+### MCP queries performed (authoritative data sources for the protocol)
+
+Called `get_solution_overview` + `get_help` on every bmpss connector:
+
+- `help` (cross-instance navigation)
+- `bss-help` (operator guide; production app URL = `https://bmpss.digital-horizon.cz` but Customer wants raw Amplify)
+- `products-read` (143 manufacturing + 145 resale products, 8/11 languages, 3 schemas: BMT=130 / ROS_1.0=84 / VIT_1.0=111 schema rows)
+- `rendered-read` (~3,654 DynamoDB items in `bpss-product-versions`)
+- `dictionary-commons-read` (5 thesauri: BMT_1.0, BMT_VAL_1.0, BMT_SUP_1.0, BMT_SUPVAL_1.0, UNIT_1.3)
+- `dictionary-components-read` (BMT_COMP_1.0 thousands of descriptors; 4 notes partitions BMT_COMP/NFC/SZPI/NFOOD; 24 languages incl. Latin)
+- `dictionary-health-claims-read` (BMT_HC_1.0; 4 article categories; 23 EU langs)
+- `dictionary-nutrition-claims-read` (BMT_NC_1.0; 23 EU langs)
+- `dictionary-national-restrictions-read` (BMT_NATL_CS_1.0; Vyhláška 58/2018 App 1+2; 3 langs populated: cs/en/la)
+- `standardize-specification` (2-tool flow: `standardize_specification` + `translate_specification`; 30 000 token input cap)
+- `field-syntax` (11 fields across 3 suppliers)
+
+### Regulatory / authoritative sources confirmed (listed in the protocol)
+
+- **EU legislation**: Reg (EC) 1924/2006; Reg (EU) 432/2012 Art. 13.1+13.5; 13 individual Art. 14 regulations (2009–2023); Reg 116/2010 + Reg 1047/2012 (nutrition-claim amendments); Dir 2002/46/EC Annex I+II; Reg 2017/2470 Novel Food Union List; Reg 2015/2283 Novel Food framework; Reg 1169/2011 Annex XIII (DRI for 27 nutrients).
+- **Czech national**: Vyhláška 58/2018 Sb. Appendix 1 (conditions + max daily doses) + Appendix 2 (prohibited).
+- **Authorities / agency databases**: SZPI Vodítka 2024 (Art. 13.1 pending); EC Food Portal (Novel Food Catalogue); EFSA (per-claim scientific opinions).
+- **Enrichment (non-legislation)**: Wikidata; PubChem.
+
+### Artifacts produced
+
+- `projects/brainmarket/etapa-1/Vydaná faktura - 20260003-2 - příloha Výkaz prací.md` (140 lines, 1,875 words; gitignored)
+- `projects/brainmarket/etapa-1/Vydaná faktura - 20260003-2 - příloha Výkaz prací.pdf` (Latin Modern Roman, A4, 50 kB; gitignored)
+- `projects/brainmarket/etapa-1/Vydaná faktura - 20260003-2 - příloha Výkaz prací.docx` (17 kB; gitignored)
+- `.claude/commands/prepare-work-report.md` (new project skill, 272 lines) — 6-question up-front checklist, MCP-first playbook, content DO/DON'T, 12 anti-pattern corrections, rendering recipe, acceptance checklist.
+- `.mcp.json` — adds bmpss SSE gateway to project-level MCP config.
+
+### Key lessons extracted into the skill
+
+1. Ask 6 clarification questions up front (maturity, URL privacy, GitHub org ownership, vanity vs raw URL, counts vs bands, consulting-clause wording). Prevents ~80 % of the downstream corrections.
+2. MCP-first when available — authoritative live data dominates source-file inference. Copy `.mcp.json` from platform repo to this project before analysis; requires Claude Code restart.
+3. Content principle: describe CAPABILITIES, not CODE. If a line fails the "is this already on GitHub?" test, it doesn't belong in the attachment.
+4. Generalise specifics that are examples of a larger rule-set ("4 output types" → "arbitrary output types via dynamic Handlebars — for example 4 specified variants"). Same for "2 name rules" → "wide set of rules — for example ...".
+5. Never invent shared integrations ("shared Athena DB across all three" was untrue and was called out).
+6. Balance detail across systems — same bullet-count order of magnitude.
+7. Render PDF/DOCX only at the very end with Latin Modern Roman + blank-line-separated paragraphs.
+
+### Git state at session close
+- `progress.json`: last_updated + last_session_summary refreshed; phase_2 artifacts array updated with new filenames + skill + `.mcp.json`.
+- `.mcp.json`, `.claude/commands/prepare-work-report.md`: new tracked files in this commit.
+- `projects/` remains gitignored; the three output files stay local.
+
+### Context for next session
+- Phase 2 etapa-1 deliverable ready. Customer may request additional edits after reviewing PDF/DOCX.
+- Next logical step: intake issued invoice 20260003 into `Fakturace - vydane_faktury.tsv` via `/parse-invoices` (still pending from Session 3 follow-up).
+- New skill `/prepare-work-report` is available for future etapa-N work reports; use it to shortcut the above process.
+
+

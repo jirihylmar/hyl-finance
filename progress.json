@@ -4,7 +4,7 @@
   "description": "Local Python CLI worker for Czech government and tax filing automation. Work is being driven ad-hoc via /add-work (incremental task lifecycle, not upfront spec).",
   "created_at": "2026-04-20",
   "last_updated": "2026-04-20",
-  "last_session_summary": "Session 3 (continued): Phase 1 tasks 1.5-1.9 complete. Added 2 received invoices (AWS Mar, BDO Mar) and 2 issued (GOLD SPORT x2) for period 2026_1. Retroactively revised March FX rate 24.245→24.515 based on AWS Mar invoice, affecting Anthropic 0013 and Google 5527595008. Regenerated DAP lines 1/5/12/40/43; appended 2 A.4 rows to KH_A4 file. Created project skill /parse-invoices (.claude/commands/parse-invoices.md) encoding all tuned rules for future tranches.",
+  "last_session_summary": "Session 4 (2026-04-20): Iterated on Phase 2 etapa-1 BRAINMARKET work-report attachment through multi-round ping-pong with user. Initial draft rejected for being git-rehash rather than capability protocol; rewrote after deep-read of three source repos, then globally rewrote again after live-MCP query of the bmpss ProdSpec Manager gateway (11 MCP instances) — produced authoritative English protocol covering BPSS supplier parser, central multilingual dictionary (9 thesauri, 24 languages, 14 legislation/authority sources including EU Reg 1924/2006 + 432/2012 + 13 Art. 14 regs + 116/2010 + 1047/2012 + Dir 2002/46/EC + Reg 2017/2470 + Reg 2015/2283 + Reg 1169/2011 Annex XIII + Vyhláška 58/2018 Sb. + SZPI Vodítka 2024 + EC Food Portal + EFSA + Wikidata/PubChem), and BSS/BMPSS publication app. Added .mcp.json so bmpss MCP connector loads in this project. Tested PDF+DOCX render (pandoc + xelatex + Latin Modern Roman); fixed Identification block line-breaks and font issues. Renamed outputs to 'Vydaná faktura - 20260003-2 - příloha Výkaz prací.{md,pdf,docx}'. Captured workflow + ping-pong lessons into new project skill /prepare-work-report (.claude/commands/prepare-work-report.md, 272 lines) covering 6-question up-front checklist, MCP-first playbook, content DO/DON'T rules, 12 anti-pattern corrections, acceptance checklist.",
   "phases": {
     "phase_0_planning": {
       "name": "Planning & Setup",
@@ -339,8 +339,12 @@
         }
       ],
       "artifacts": [
-        "projects/brainmarket/etapa-1/Vydaná faktura - 20260003-2.pdf (existing draft)",
-        "projects/brainmarket/etapa-1/vykaz-prac.md (to be created by 2.3)"
+        "projects/brainmarket/etapa-1/Vydaná faktura - 20260003-2.pdf (existing draft, not modified)",
+        "projects/brainmarket/etapa-1/Vydaná faktura - 20260003-2 - příloha Výkaz prací.md (final, gitignored)",
+        "projects/brainmarket/etapa-1/Vydaná faktura - 20260003-2 - příloha Výkaz prací.pdf (final, gitignored)",
+        "projects/brainmarket/etapa-1/Vydaná faktura - 20260003-2 - příloha Výkaz prací.docx (final, gitignored)",
+        ".claude/commands/prepare-work-report.md (new project skill extracted from this work)",
+        ".mcp.json (project-level MCP config: bmpss gateway SSE)"
       ]
     }
   },

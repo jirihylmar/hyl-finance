@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "bmpss": {
+      "type": "sse",
+      "url": "https://mcp.hub440.cz/brainmarket/prodspec/mcp/sse"
+    }
+  }
+}
