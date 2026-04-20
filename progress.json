@@ -4,7 +4,7 @@
   "description": "Local Python CLI worker for Czech government and tax filing automation. Work is being driven ad-hoc via /add-work (incremental task lifecycle, not upfront spec).",
   "created_at": "2026-04-20",
   "last_updated": "2026-04-20",
-  "last_session_summary": "Session 2: attempted full Phase 0 (spec + CLAUDE.md + task files); user reversed direction end-of-session. Pivoted to add-work lifecycle: spec, CLAUDE.md, and tasks/ deleted; 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 marked superseded; Phase 1-5 task blocks marked superseded (kept for audit). 0.1, 0.1a, 0.2 remain complete (understanding work, no discarded deliverables).",
+  "last_session_summary": "Session 2: attempted full Phase 0 (spec + CLAUDE.md + task files); user reversed direction end-of-session. Pivoted to add-work lifecycle: spec, CLAUDE.md, and tasks/ deleted; 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 marked superseded; Phase 1-5 task blocks marked superseded (kept for audit). 0.1, 0.1a, 0.2 remain complete (understanding work, no discarded deliverables). First real phase added via /add-work: phase_1_invoice_intake (tasks 1.1-1.4) for 2026/01 received-invoices tranche.",
   "phases": {
     "phase_0_planning": {
       "name": "Planning & Setup",
@@ -165,9 +165,56 @@
         {"id": "5.4", "name": "README.md", "status": "superseded", "size": "small"},
         {"id": "5.5", "name": "Release tag v1.0.0", "status": "superseded", "size": "small"}
       ]
+    },
+    "phase_1_invoice_intake": {
+      "name": "Invoice intake",
+      "status": "in_progress",
+      "started_at": "2026-04-20",
+      "completed_at": null,
+      "description": "Ongoing phase. Each intake tranche (month or batch of PDFs) is a set of tasks. First tranche: 2026/01 received invoices. Workflow is direct PDF reading + in-session LLM classification (no Python parser). Per user: 'some llm knowledge not only parser'.",
+      "tasks": [
+        {
+          "id": "1.1",
+          "name": "Extract + classify all 23 PDFs in dph-dap/Přijaté Faktury/202601/",
+          "status": "pending",
+          "size": "medium",
+          "added_at": "2026-04-20",
+          "added_reason": "User /add-work request to intake 2026/01 received invoices.",
+          "verify": "dph-dap/.workbench-202601.tsv (gitignored) has one row per PDF with Typ, Zařazení_KH, DUZP, Základ_daně_CZK, DPH_21%_CZK, Celkem_CZK, období filled; unknowns flagged for review"
+        },
+        {
+          "id": "1.2",
+          "name": "Present draft rows to user for review (BLOCKING)",
+          "status": "pending",
+          "size": "small",
+          "depends_on": ["1.1"],
+          "added_at": "2026-04-20",
+          "verify": "User explicitly approves the draft workbench rows or lists edits; approved set saved back to workbench TSV",
+          "notes": "BLOCKING: do not proceed to 1.3 without explicit approval."
+        },
+        {
+          "id": "1.3",
+          "name": "Merge approved rows into Fakturace - prijate_faktury.tsv",
+          "status": "pending",
+          "size": "small",
+          "depends_on": ["1.2"],
+          "added_at": "2026-04-20",
+          "verify": "prijate_faktury.tsv row count increases by approved delta; no duplicate (Dodavatel, Číslo_faktury) pairs"
+        },
+        {
+          "id": "1.4",
+          "name": "Regenerate affected aggregates: Fakturace - DAP.tsv (impacted periods) and Fakturace - KH_B2_prijate_nad_10k.tsv",
+          "status": "pending",
+          "size": "medium",
+          "depends_on": ["1.3"],
+          "added_at": "2026-04-20",
+          "verify": "DAP lines 5/10/12/40/43 for impacted periods match sum of ledger rows with that KH/Typ classification; KH B.2 file contains every received domestic row with Celkem_CZK≥10000 in the affected period"
+        }
+      ],
+      "artifacts": []
     }
   },
-  "current_task": null,
+  "current_task": "1.1",
   "workflow": "add-work lifecycle: user proposes each next task ad-hoc; /add-work registers it; /update-progress closes it. No upfront spec or phase plan.",
   "git_repos": {
     "orchestration": {

@@ -250,4 +250,28 @@ At end of Session 2, after reviewing my draft deliverables (IMPLEMENTATION_PLAN.
 
 Context for next session: `/start-session` sees `current_task: null` → expect user to specify the first add-work task. `dph-dap/` real data is available and understood (see Task 0.1a breakdown above) if needed.
 
+### Work added (Session 2, via /add-work)
+
+**New phase:** `phase_1_invoice_intake` — ongoing; first tranche = 2026/01 received invoices.
+
+**Source:** User `/add-work` request: "read /mnt/c/Users/jirih/hyl-finance/dph-dap/Přijaté Faktury/202601 ; extract data, classify and update Fakturace* files; some llm knowledge not only parser".
+
+**Tasks added:**
+| ID | Name | Size | Notes |
+|---|---|---|---|
+| 1.1 | Extract + classify all 23 PDFs in `dph-dap/Přijaté Faktury/202601/` into `dph-dap/.workbench-202601.tsv` | medium | Direct PDF reading + LLM classification; no Python parser |
+| 1.2 | Present draft rows to user for review (BLOCKING) | small | Approval gate before touching real files |
+| 1.3 | Merge approved rows into `Fakturace - prijate_faktury.tsv` | small | Dedup by (Dodavatel, Číslo_faktury) |
+| 1.4 | Regenerate `Fakturace - DAP.tsv` impacted periods + `Fakturace - KH_B2_prijate_nad_10k.tsv` | medium | Vydané and KH A.4 unchanged (202601 is received only) |
+
+**Expected inputs:** 23 PDFs observed in the folder; filename heuristics suggest suppliers include Google Cloud EMEA (format `5XXXXXXXXX`), AWS EMEA (format `EUINCZ26-*`), Anthropic (`Invoice-A0WDEPAH-*`), plus several unknowns (`5910635285-fs`, `202600057`/`202600076`/`202600123`/`202600151`, `FS 9823_SKI_03_2026`, `invoice_26001*`, `5260111461`, `5527595008`).
+
+**Expected outputs:**
+- `dph-dap/.workbench-202601.tsv` (gitignored — under `dph-dap/` which is already ignored).
+- New rows in `dph-dap/Fakturace - prijate_faktury.tsv`.
+- Updated rows in `dph-dap/Fakturace - DAP.tsv` for period `2026_1` (and any other period DUZPs land in).
+- Updated rows in `dph-dap/Fakturace - KH_B2_prijate_nad_10k.tsv` for any received-domestic-≥10k invoices in the tranche.
+
+**Current task:** 1.1. Awaiting session continuation to begin extraction.
+
 
