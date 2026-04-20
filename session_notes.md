@@ -359,4 +359,56 @@ Initial 23 rows → final 21 rows after user edits. Full workbench at `dph-dap/.
 |---|---|
 | orchestration (`.`) | needs_commit (progress.json, session_notes.md changed) — dph-dap/ changes are gitignored and stay on local disk only |
 
+### Session 3 (continued) — tasks 1.5–1.9
+
+**Completed:**
+- Task 1.5 — 2 new received (EUINCZ26-57569 AWS Mar, 202600186 BDO Mar) + FX retro-revise Mar 2026 ✓
+- Task 1.6 — 2 issued (GOLD SPORT 20260001, 20260002) into `Fakturace - vydane_faktury.tsv` ✓
+- Task 1.7 — DAP.tsv `2026_1` regenerated (all 5 affected lines) ✓
+- Task 1.8 — KH_A4 appended with 2 GOLD SPORT rows ✓
+- Task 1.9 — Project skill `/parse-invoices` created ✓
+
+**FX revision (retroactive):**
+- AWS Mar invoice (`EUINCZ26-57569`) brought authoritative March 2026 rate **24.515 CZK/EUR** (prior rows used Feb carry-over 24.245).
+- `A0WDEPAH-0013` (Anthropic Mar): 436.41 / 91.65 / 528.06 → **441.27 / 92.67 / 533.94** (+4.86 / +1.02)
+- `5527595008` (Google Mar): 196.38 / 41.24 / 237.62 → **198.57 / 41.70 / 240.27** (+2.19 / +0.46)
+
+**DAP 2026_1 final values:**
+
+| Line | Base CZK | VAT CZK | Change vs 1.4-close |
+|---|---|---|---|
+| 1 (issued tuzemsko) | 47 400.00 | 9 954.00 | +47 400 / +9 954 (new) |
+| 5 (Google §9(1)) | 592.02 | 124.32 | +2.19 / +0.46 (Mar FX) |
+| 10 (§92a) | 0 | 0 | — |
+| 12 (Anthropic §108) | 1 315.62 | 276.29 | +4.86 / +1.02 (Mar FX) |
+| 40 (input VAT from CZ) | 13 702.36 | 2 877.44 | +2 122.29 / +445.58 (+2 rows: AWS Mar + BDO Mar) |
+| 43 (= 5 + 12) | 1 907.64 | 400.61 | +7.05 / +1.48 |
+
+**Net 2026_1 VAT position (output VAT − input VAT):**
+Output VAT = 9 954.00 (line 1) + 400.61 (line 43 is "self-assessed input offset", but also appears as output under lines 5+12 which = 400.61). Input VAT deducted = 2 877.44 (line 40) + 400.61 (line 43). Net payable = (9 954 + 400.61) − (2 877.44 + 400.61) = **+7 076.56 CZK payable to FS ČR** (rough; confirm with full DPH form in later tranche).
+
+**`/parse-invoices` skill** — `.claude/commands/parse-invoices.md` registered as project skill with YAML frontmatter:
+`Ingest invoice PDFs (přijaté/vydané), classify per Czech VAT rules, update prijate_faktury.tsv / vydane_faktury.tsv / DAP.tsv / KH_A4 / KH_B2 (project)`.
+
+Skill covers:
+- 9-step procedure (confirm args → read PDFs → build workbench → review (BLOCKING) → merge → regenerate DAP → regenerate KH samples → verify → /update-progress).
+- Typ rules (Tuzemsko / Zahraničí §9(1) / Reverse charge §108).
+- KH section rules (A.2 / A.4 / A.5 / B.2 / B.3 with the ≥10k threshold).
+- DAP line mapping (lines 1, 5, 10, 12, 40, 43).
+- FX method (AWS monthly rate; carry-over with retro-revise when next month's AWS arrives).
+- Filing-period override (`--period` arg supersedes DUZP-derived quarter).
+- Duplicate check (`uniq -d` on `Dodavatel|Číslo_faktury`).
+- Known-supplier playbook and anti-patterns.
+
+**Ledger row counts after tasks 1.5–1.8:**
+| File | Before 1.5 | After 1.8 | Delta |
+|---|---|---|---|
+| `Fakturace - prijate_faktury.tsv` | 55 data rows | 57 data rows | +2 appended, 2 revised in-place |
+| `Fakturace - vydane_faktury.tsv` | 3 data rows | 5 data rows | +2 appended |
+| `Fakturace - DAP.tsv` | lines 1/5/12/40/43 for 2026_1 set by 1.4 | same lines regenerated | values updated |
+| `Fakturace - KH_A4_vydane_nad_10k.tsv` | 2 data rows | 4 data rows | +2 appended |
+| `Fakturace - KH_B2_prijate_nad_10k.tsv` | 2 data rows | 2 data rows | unchanged (no received ≥10k in batch) |
+
+**Next session:** `current_task: null`. Use `/parse-invoices` when the next tranche arrives.
+
 
