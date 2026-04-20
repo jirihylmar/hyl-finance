@@ -274,4 +274,89 @@ Context for next session: `/start-session` sees `current_task: null` → expect 
 
 **Current task:** 1.1. Awaiting session continuation to begin extraction.
 
+---
+
+## Session 3 — 2026-04-20
+
+### Completed this session
+- Task 1.1 — Extract + classify 23 PDFs from `dph-dap/Přijaté Faktury/202601/` ✓
+- Task 1.2 — User review of workbench (BLOCKING) ✓
+- Task 1.3 — Merge approved rows into `Fakturace - prijate_faktury.tsv` ✓
+- Task 1.4 — Regenerate DAP aggregate for period `2026_1` ✓
+
+### Verification results
+| Task | Verify | Result |
+|---|---|---|
+| 1.1 | workbench has one row per PDF with all required fields | PASSED — 23 rows |
+| 1.2 | user explicit approval after review | PASSED — user approved after edits |
+| 1.3 | prijate_faktury.tsv row count +=21, no (Dodavatel, Číslo_faktury) duplicates | PASSED — 34 → 55 data rows, zero dup pairs |
+| 1.4 | DAP 2026_1 lines match ledger sums; KH B.2 has all received-domestic ≥10k | PASSED — lines recomputed; no B.2 rows (max batch Celkem = 1963.97) |
+
+### Per-row decisions (Task 1.1 → 1.2)
+
+Initial 23 rows → final 21 rows after user edits. Full workbench at `dph-dap/.workbench-202601.tsv` (gitignored).
+
+**Supplier count (21 kept rows):**
+| Supplier | DIČ / ID | Count | Typ | KH |
+|---|---|---|---|---|
+| O2 Czech Republic a.s. | CZ60193336 | 5 | Tuzemsko | B.3 |
+| BDO Euro-Trend s.r.o. (T-Mobile) | CZ61500542 | 4 | Tuzemsko | B.3 |
+| STARNET, s.r.o. | CZ26041561 | 3 | Tuzemsko | B.3 |
+| AWS EMEA Czech Branch | CZ685187560 | 2 | Tuzemsko | B.3 |
+| Anthropic, PBC | (US, no VAT) | 3 | Reverse charge §108 | A.2 |
+| Google Cloud EMEA | IE3668997OH | 3 | Zahraničí §9(1) | A.2 |
+| INTERNET CZ, a.s. (Forpsi) | CZ26043319 | 1 | Tuzemsko | B.3 |
+
+### User corrections / directives received in Session 3
+
+1. **`období` = `2026_1` regardless of DUZP.** User's quarterly filing convention: all invoices processed in this tranche belong to the 2026_1 filing period even though 4 of them have DUZP in Nov-Dec 2025. Workbench updated, old `2025_4` assignments wiped.
+2. **Two source PDFs deleted by user**:
+   - `EUINCZ26-16150.pdf` (AWS Dec 2025 — was a duplicate of existing ledger row).
+   - `FS 9823_SKI_03_2026.pdf` (Polish supplier Dariusz Mazur, ski helmet — ambiguous B2C/B2B, personal vs business expense).
+   Both rows removed from workbench. 23 → 21.
+3. **FX for EUR invoices**: user directive "see how previous were handled" — no explicit `[FLAG]` in Poznámka. Method used: same as prior ledger (AWS monthly PDF rate applied to all EUR invoices of the same month). January 2026: rate 24.33 (from AWS EUINCZ26-26189). February 2026: rate 24.245 (from AWS EUINCZ26-46559). March 2026: no AWS anchor yet → carry over Feb rate 24.245 (user accepted this; may be revised when April AWS invoice arrives).
+
+### DAP.tsv — 2026_1 aggregate (new)
+
+| DAP line | Description | Base CZK | VAT CZK | Source |
+|---|---|---|---|---|
+| 1 | Dodání zboží/služby v tuzemsku (output) | 0 | 0 | no issued invoices this period |
+| 5 | Přijetí služby §9(1) od EU plátce | 589.83 | 123.86 | 3× Google Workspace |
+| 10 | §92a domestic RC | 0 | 0 | none |
+| 12 | Ostatní §108 RC | 1 310.76 | 275.27 | 3× Anthropic Claude Pro |
+| 40 | Vstupní DPH od CZ plátců | 11 580.07 | 2 431.86 | 15 domestic Tuzemsko rows |
+| 43 | Z plnění na řádcích 3–13 (vstupní DPH) | 1 900.59 | 399.13 | = line 5 + line 12 |
+
+**Batch total DPH reported:** 2 830.99 CZK input VAT across the period.
+
+### KH sections touched (2026_1)
+- **A.2** (6 rows, Google + Anthropic RC) — no KH section sample file maintained for A.2 in `dph-dap/`; rows live only in `prijate_faktury.tsv`.
+- **B.3** (15 rows, domestic ≤10k) — aggregated into DAP line 40 only; not itemized in any sample file.
+- **B.2** (received domestic ≥10k) — none in batch, file unchanged.
+- **A.4** (issued ≥10k) — not touched, 202601 tranche is received-only.
+
+### Artifacts (all gitignored under `dph-dap/`)
+- `dph-dap/.workbench-202601.tsv` — intake workbench, 21 rows.
+- `dph-dap/Fakturace - prijate_faktury.tsv` — 21 new rows appended (total now 55 data rows).
+- `dph-dap/Fakturace - DAP.tsv` — 2026_1 period rows (5, 12, 40, 43) regenerated with real values.
+
+### Key decisions
+- Period-assignment convention: TSV `období` reflects user's filing period, not strictly DUZP's calendar quarter. Useful when invoices are processed later than their DUZP.
+- FX-rate convention: monthly rate is derived from the AWS EMEA CZ Branch invoice for that month (AWS publishes the CZK conversion rate on its PDF). Applied uniformly to all same-month EUR invoices.
+- Duplicate-check method: (Dodavatel, Číslo_faktury) pair, verified by awk before append.
+
+### Issues encountered
+- Sparse FX anchor for March 2026 (no AWS March invoice in this batch). Resolved by carry-over from Feb.
+- Forpsi invoice filename used Variable Symbol not Invoice Number (`5260111461.pdf` = VS; actual Číslo = `1126009510`). Used invoice number in ledger per prior pattern.
+
+### Context for next session
+- `current_task: null` → awaiting user `/add-work` for next tranche (likely `202602/` received invoices, or issued-invoice tranche for 2026_1).
+- Next AWS invoice (March 2026 billing) will confirm the FX rate carry-over; if different, revise the 2 March 2026 EUR rows in the ledger.
+- Phase 1 (`phase_1_invoice_intake`) remains `in_progress` — future intake tranches go into this phase as tasks 1.5, 1.6, etc.
+
+### Git status
+| Repo | Status |
+|---|---|
+| orchestration (`.`) | needs_commit (progress.json, session_notes.md changed) — dph-dap/ changes are gitignored and stay on local disk only |
+
 
