@@ -298,9 +298,9 @@
   "git_repos": {
     "orchestration": {
       "local": ".",
-      "remote": null,
-      "status": "local_only",
-      "notes": "Single mono-repo. No remote configured."
+      "remote": "https://github.com/jirihylmar/hyl-finance.git",
+      "status": "pushed",
+      "notes": "Single mono-repo. Private GitHub repo. main tracks origin/main. Real financial data in dph-dap/ is gitignored and never pushed; tracked files (progress.json, session_notes.md) contain supplier DIČs/invoice numbers/sums — acceptable because repo is private."
     }
   },
   "context_hints": {

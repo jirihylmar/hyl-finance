@@ -411,4 +411,11 @@ Skill covers:
 
 **Next session:** `current_task: null`. Use `/parse-invoices` when the next tranche arrives.
 
+### Session 3 close — remote push
+
+- Remote `origin` added earlier by user: `https://github.com/jirihylmar/hyl-finance.git` (private).
+- All 5 commits pushed to `origin/main`; upstream tracking set (`main -> origin/main`).
+- `git_repos.orchestration.status` updated from `local_only` → `pushed` in `progress.json`.
+- Privacy stance: real financial data in `dph-dap/` is gitignored and never pushed. Tracked files (`session_notes.md`, `progress.json`, `.claude/commands/parse-invoices.md`) contain supplier DIČs, invoice numbers, and CZK totals — acceptable because the GitHub repo is private. Revisit redaction if repo visibility ever changes.
+
 
