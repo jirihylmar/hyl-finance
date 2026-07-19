@@ -15,7 +15,7 @@ allowed-tools:
 > Ingest a folder of invoice PDFs (received and/or issued), classify per Czech VAT rules, and append rows to the four ledger/aggregate TSVs under `dph-dap/`. No Python parser — read PDFs with the `Read` tool and apply LLM judgment plus the rules below.
 
 **Arguments (optional free text after `/parse-invoices`):**
-- `--period 2026_2` — Filing period in `YYYY_Q` format. **Required** unless obvious from the folder name. The user's filing-period convention **overrides DUZP-derived quarter** (Task 1.2 directive). If omitted, ask.
+- `--period 2026_2` — Filing period in `YYYY_Q` format. **Required** unless obvious from the folder name. The user's filing-period convention **overrides DUZP-derived quarter** (user directive). If omitted, ask.
 - `--received <folder>` — Folder of received-invoice PDFs. Default: most recent `dph-dap/Přijaté Faktury/YYYYMM/` not yet processed.
 - `--issued <folder>` — Folder of issued-invoice PDFs. Default: `dph-dap/Vydané faktury/YYYY/`.
 - `--no-merge` — Stop after producing the workbench (skip ledger append + aggregates). Useful for dry-run review.
@@ -39,7 +39,7 @@ If both flags missing, ask user which tranche(s) to process.
 
 ---
 
-## Classification rules (tuned across Session 1–3)
+## Classification rules (tuned during the initial intake tranches)
 
 ### `Typ` (transaction type)
 
@@ -86,7 +86,7 @@ Used to regenerate `Fakturace - DAP.tsv` for the target period.
 | **40** | Z přijatých zdanitelných plnění od plátců (input VAT from CZ payers) | Sum of received rows where `Typ = Tuzemsko` |
 | **43** | Ze zdanitelných plnění vykázaných na řádcích 3 až 13 | = Line 5 + Line 12 (+ Line 10 when present) |
 
-Each line aggregates two numbers per period: `Základ_daně_CZK` (base) and `DPH_21%_CZK` (VAT).
+Each line aggregates two numbers per period — the `Základ_daně` (base) and `DPH_21%` (VAT) columns of `Fakturace - DAP.tsv` (note: the DAP file's headers carry no `_CZK` suffix, unlike the ledgers).
 
 ---
 
@@ -108,7 +108,7 @@ Each line aggregates two numbers per period: `Základ_daně_CZK` (base) and `DPH
 
 ### Revising FX retroactively
 
-When a later AWS invoice reveals the authoritative rate for a prior month and the rows for that month used a provisional rate, **update in place** in `Fakturace - prijate_faktury.tsv` (use `Edit` on the exact rows) and re-run aggregates for that period. Example from Task 1.5: March 2026 rows for Anthropic `A0WDEPAH-0013` and Google `5527595008` were initially written at rate 24.245 (Feb carry-over) then revised to 24.515 when `EUINCZ26-57569.pdf` arrived.
+When a later AWS invoice reveals the authoritative rate for a prior month and the rows for that month used a provisional rate, **update in place** in `Fakturace - prijate_faktury.tsv` (use `Edit` on the exact rows) and re-run aggregates for that period. Example: March 2026 rows for Anthropic `A0WDEPAH-0013` and Google `5527595008` were initially written at rate 24.245 (Feb carry-over) then revised to 24.515 when `EUINCZ26-57569.pdf` arrived.
 
 ---
 
@@ -116,7 +116,7 @@ When a later AWS invoice reveals the authoritative rate for a prior month and th
 
 `období` / `Období` = filing period in `YYYY_Q` format (e.g. `2026_1` = Q1 2026).
 
-**Rule (tuned Task 1.2):** the user's filing period **overrides** DUZP-derived quarter. When running this skill, if `--period` is supplied, **all rows in this batch** get that period regardless of their DUZP. Example: invoices with DUZP `07.11.2025`, `30.11.2025`, `07.12.2025`, `31.12.2025` can still be assigned `období = 2026_1` if the user is processing them in their Q1-2026 filing.
+**Rule (user-ratified):** the user's filing period **overrides** DUZP-derived quarter. When running this skill, if `--period` is supplied, **all rows in this batch** get that period regardless of their DUZP. Example: invoices with DUZP `07.11.2025`, `30.11.2025`, `07.12.2025`, `31.12.2025` can still be assigned `období = 2026_1` if the user is processing them in their Q1-2026 filing.
 
 If `--period` is not supplied, ask the user explicitly. Do NOT guess from DUZP.
 
@@ -132,7 +132,7 @@ awk -F'\t' 'NR>1 && $0!~/^$/{print $2"|"$4}' "<ledger>.tsv" | sort | uniq -d
 
 Duplicates are keyed on `(Dodavatel or Odběratel) + Číslo_faktury`. If the check returns any row, stop and show the duplicates to the user.
 
-If the same invoice is discovered in a new tranche (e.g. AWS EUINCZ26-16150 was a duplicate in Task 1.1), **exclude it from the workbench** with a note; do not append.
+If the same invoice is discovered in a new tranche (e.g. AWS EUINCZ26-16150 turned up as a duplicate in an earlier tranche), **exclude it from the workbench** with a note; do not append.
 
 ---
 
@@ -148,7 +148,7 @@ If the same invoice is discovered in a new tranche (e.g. AWS EUINCZ26-16150 was 
 
 - Use the `Read` tool on each PDF file. It extracts text and pages (handles Czech UTF-8 correctly).
 - For repetitive suppliers (O2, BDO, AWS, Google, Anthropic, STARNET) the layout is stable — extract `Číslo`, `DUZP`, `Částka_orig`, `Měna`, base, VAT, total, supplier `DIČ`.
-- For first-time suppliers, read the whole invoice and classify with judgment. If ambiguous (e.g. Polish OSS supplier charging CZ VAT to a B2C buyer — see Session 2 SKI case), **flag inline in Poznámka** with `[FLAG: ...]` and surface to user in the review step.
+- For first-time suppliers, read the whole invoice and classify with judgment. If ambiguous (e.g. Polish OSS supplier charging CZ VAT to a B2C buyer — the SKI case), **flag inline in Poznámka** with `[FLAG: ...]` and surface to user in the review step.
 
 ### 3. Build the workbench
 
@@ -193,7 +193,7 @@ For each affected period:
 
 - For received rows with `Celkem_CZK ≥ 10000` AND `Typ = Tuzemsko` AND `Zařazení_KH = B.2`: append to `Fakturace - KH_B2_prijate_nad_10k.tsv`.
 - For issued rows with `Celkem_CZK ≥ 10000` AND `Typ = Tuzemsko` (→ A.4): append to `Fakturace - KH_A4_vydane_nad_10k.tsv`.
-- Both files use a 15-column layout with an `Oddíl` column (value `A.4` or `B.2`) and a description column repeating the section text.
+- Match each file's existing header exactly — the two layouts differ: `KH_A4_vydane_nad_10k.tsv` uses a 15-column layout with a leading `Oddíl` column (value `A.4`) and a description column; `KH_B2_prijate_nad_10k.tsv` uses a 12-column layout (the received-ledger columns minus `období`, no `Oddíl`). Read the header before appending.
 
 ### 8. Verify
 
@@ -209,7 +209,7 @@ Expected: row-count delta matches batch size; both `uniq -d` checks return empty
 
 ### 9. Close with /update-progress
 
-Mark the invoked tasks complete in `progress.json` (invoke `/update-progress` or edit directly if the tasks were added ad-hoc). Do NOT push anywhere — this project is `local_only`.
+Mark the invoked tasks complete in `progress.json` (invoke `/update-progress` or edit directly if the tasks were added ad-hoc). Never commit anything under `dph-dap/` (gitignored real financial data); the repo itself is a private GitHub repo and tracked files (progress.json, session_notes.md, skills) push normally.
 
 ---
 
@@ -232,7 +232,7 @@ When a **new supplier** appears, do not guess — read the PDF fully, check DIČ
 
 ## Anti-patterns (learned the hard way)
 
-- **Don't use DUZP-derived quarter for `období`.** It is the user's filing period, which can differ (Task 1.2).
+- **Don't use DUZP-derived quarter for `období`.** It is the user's filing period, which can differ.
 - **Don't guess FX rate from ČNB or elsewhere.** Always use the same-month AWS invoice rate. If unavailable, carry over + flag.
 - **Don't commit any file under `dph-dap/`.** Real financial data; gitignored for a reason.
 - **Don't classify a Polish-supplier-with-CZ-VAT row without confirming.** OSS distance sales to B2C consumers are non-deductible for the CZ buyer. Always ask when buyer's DIČ is blank on an invoice that charges CZ VAT from a non-CZ supplier.

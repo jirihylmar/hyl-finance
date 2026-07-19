@@ -564,3 +564,34 @@ Called `get_solution_overview` + `get_help` on every bmpss connector:
 - New skill `/prepare-work-report` is available for future etapa-N work reports; use it to shortcut the above process.
 
 
+## Session 5 — 2026-07-19
+
+### Session start
+- FF-pull: orchestration repo was in sync with origin but dirty (uncommitted `/distribute-defaults` output — 8 updated + 3 new command files); committed by pathspec as 2ace6ee and pushed. Nested `syndicate-playbooks-examples/` checkout fast-forwarded to origin-latest.
+- Cross-host resolution: `syndicate-playbook` lives on the remote box (local paths in distributed defaults are dead there); all three BRAINMARKET source repos (`aps-brm-products-playbook`, `app-brm-manufacturing-dictionary`, `app-brm-manufacturing-products`) are local.
+- Commit guard: `.claude/hooks/pre-commit` was never delivered to this repo — arming skipped with WARN; delivery belongs to a central `/distribute-defaults` run.
+
+### Repo-hygiene baseline pass (first in this project)
+
+**Quick checks**: hygiene clock never recorded (fixed by this pass); 2 broken doc refs from the distributed `generate-architecture` default (expects `docs/architecture/` which this project never created — read-only default, reported not fixed); no distribution manifest → defaults have no provenance, nothing classified (per check E discipline).
+
+**Sweep**: no `docs/` tree existed. 13 skills: 11 distributed defaults (report-only), 2 project-owned. Both project-owned skills grounded line-by-line (Step 1a slice):
+
+| File | Claim | Reality | Fix |
+|---|---|---|---|
+| parse-invoices.md | "Both KH files use a 15-column layout with an Oddíl column" | KH_A4 = 15 cols with Oddíl; KH_B2 = 12 cols, no Oddíl, no období | Rewrote to describe both layouts + "read the header before appending" |
+| parse-invoices.md | "Do NOT push anywhere — this project is local_only" | Repo has GitHub origin, status pushed since earlier session | Rewrote: never commit dph-dap/; repo pushes normally |
+| parse-invoices.md | DAP columns "Základ_daně_CZK / DPH_21%_CZK" | Actual DAP.tsv headers: `Základ_daně` / `DPH_21%` (no _CZK) | Corrected column names |
+| prepare-work-report.md | pandoc/xelatex/Latin Modern, .mcp.json, projects/ gitignored, filename convention | all verified present/true | none needed |
+
+**De-phase slice**: 7 session/task-number refs removed from parse-invoices.md (statements kept, process tokens dropped: "Task 1.2 directive" → "user directive", "Session 2 SKI case" → "the SKI case", etc.).
+
+**Terminology registry**: bootstrapped `docs/terminology.md` (ratified, small) — canonical names for the 5 TSV surfaces, workbench, filing period `období`/YYYY_Q, `Typ` values, tranche, etapa workspace, work-report naming; bans on bare "ledger"/"period"/"report".
+
+**Compaction**: dry-run found 0 targets (24 KB, no completed phases) — skipped.
+
+**Deferred (named reasons)**: see `.claude/hygiene-state.json` — generate-architecture's missing docs/architecture/ targets (default read-only), no distribution manifest (next central run establishes it), no pre-commit hook delivered.
+
+### Context for next session
+- Hygiene clock set (2026-07-19); per-session grounding rotation can now run at session close.
+- Still pending: intake issued invoice 20260003 (BRAINMARKET) into the issued ledger via /parse-invoices (untracked follow-up); task 0.9 (delete syndicate-playbooks-examples/) still deferred.

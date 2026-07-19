@@ -1,0 +1,13 @@
+{
+  "last_pass": "2026-07-19",
+  "findings_fixed": 10,
+  "deferred": [
+    "generate-architecture default references docs/architecture/{generate.py,README.md} which this project never created — default is read-only; harmless until an architecture diagram is requested (create docs/architecture/ then, or report centrally)",
+    "no .claude/distribution-manifest.json — defaults have no provenance record; next central /distribute-defaults run will establish it",
+    "no .claude/hooks/pre-commit delivered — commit guard cannot be armed; delivery is /distribute-defaults's job"
+  ],
+  "grounded": {
+    ".claude/commands/parse-invoices.md": "2026-07-19",
+    ".claude/commands/prepare-work-report.md": "2026-07-19"
+  }
+}
