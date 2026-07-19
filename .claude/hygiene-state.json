@@ -8,6 +8,7 @@
   ],
   "grounded": {
     ".claude/commands/parse-invoices.md": "2026-07-19",
-    ".claude/commands/prepare-work-report.md": "2026-07-19"
+    ".claude/commands/prepare-work-report.md": "2026-07-19",
+    ".claude/commands/generate-architecture.md": "2026-07-19"
   }
 }

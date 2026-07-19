@@ -3,8 +3,9 @@
   "project": "hyl-finance",
   "description": "Local Python CLI worker for Czech government and tax filing automation. Work is being driven ad-hoc via /add-work (incremental task lifecycle, not upfront spec).",
   "created_at": "2026-04-20",
-  "last_updated": "2026-04-20",
-  "last_session_summary": "Session 4 (2026-04-20): Iterated on Phase 2 etapa-1 BRAINMARKET work-report attachment through multi-round ping-pong with user. Initial draft rejected for being git-rehash rather than capability protocol; rewrote after deep-read of three source repos, then globally rewrote again after live-MCP query of the bmpss ProdSpec Manager gateway (11 MCP instances) — produced authoritative English protocol covering BPSS supplier parser, central multilingual dictionary (9 thesauri, 24 languages, 14 legislation/authority sources including EU Reg 1924/2006 + 432/2012 + 13 Art. 14 regs + 116/2010 + 1047/2012 + Dir 2002/46/EC + Reg 2017/2470 + Reg 2015/2283 + Reg 1169/2011 Annex XIII + Vyhláška 58/2018 Sb. + SZPI Vodítka 2024 + EC Food Portal + EFSA + Wikidata/PubChem), and BSS/BMPSS publication app. Added .mcp.json so bmpss MCP connector loads in this project. Tested PDF+DOCX render (pandoc + xelatex + Latin Modern Roman); fixed Identification block line-breaks and font issues. Renamed outputs to 'Vydaná faktura - 20260003-2 - příloha Výkaz prací.{md,pdf,docx}'. Captured workflow + ping-pong lessons into new project skill /prepare-work-report (.claude/commands/prepare-work-report.md, 272 lines) covering 6-question up-front checklist, MCP-first playbook, content DO/DON'T rules, 12 anti-pattern corrections, acceptance checklist.",
+  "last_updated": "2026-07-19",
+  "last_session_summary": "Session 5 (2026-07-19): Session start housekeeping (committed distributed defaults, first /repo-hygiene baseline pass — grounded both project skills, fixed 3 stale claims in parse-invoices, bootstrapped docs/terminology.md, set hygiene clock). Then Q2 2026 intake tranche end-to-end: registered tasks 1.10-1.14 via /add-work, read 29 documents via 4 parallel agents (incl. 6 fuel-receipt photos and 4 first-time suppliers), built 28-row workbench 2026_2, user approved with 1 exclusion (AWS CAG EUINCZ26-118964), merged 27 received rows (ledger 57→84), intaked issued 20260003 BRAINMARKET (980100 CZK, A.4), regenerated DAP 2026_2 (line 40 = 432443.68/90813.34 incl. Škoda Octavia purchase DPH 85371.07) + KH_A4 + KH_B2. Provisional FX: Google April 24.515, Anthropic 0017 (July) 24.26 — revise via --revise-fx when AWS April/July invoices arrive (April AWS invoice may not exist at all; no April invoices from O2/STARNET/Anthropic either). Repaired KH_A4 rows fragmented by a newline-translation bug; lesson encoded into /parse-invoices. Previous (Session 4): BRAINMARKET work-report attachment finalized + /prepare-work-report skill created.",
+  "_session_4_summary_archived": "Session 4 (2026-04-20): Iterated on Phase 2 etapa-1 BRAINMARKET work-report attachment through multi-round ping-pong with user. Initial draft rejected for being git-rehash rather than capability protocol; rewrote after deep-read of three source repos, then globally rewrote again after live-MCP query of the bmpss ProdSpec Manager gateway (11 MCP instances) — produced authoritative English protocol covering BPSS supplier parser, central multilingual dictionary (9 thesauri, 24 languages, 14 legislation/authority sources including EU Reg 1924/2006 + 432/2012 + 13 Art. 14 regs + 116/2010 + 1047/2012 + Dir 2002/46/EC + Reg 2017/2470 + Reg 2015/2283 + Reg 1169/2011 Annex XIII + Vyhláška 58/2018 Sb. + SZPI Vodítka 2024 + EC Food Portal + EFSA + Wikidata/PubChem), and BSS/BMPSS publication app. Added .mcp.json so bmpss MCP connector loads in this project. Tested PDF+DOCX render (pandoc + xelatex + Latin Modern Roman); fixed Identification block line-breaks and font issues. Renamed outputs to 'Vydaná faktura - 20260003-2 - příloha Výkaz prací.{md,pdf,docx}'. Captured workflow + ping-pong lessons into new project skill /prepare-work-report (.claude/commands/prepare-work-report.md, 272 lines) covering 6-question up-front checklist, MCP-first playbook, content DO/DON'T rules, 12 anti-pattern corrections, acceptance checklist.",
   "phases": {
     "phase_0_planning": {
       "name": "Planning & Setup",
@@ -285,7 +286,10 @@
         {
           "id": "1.10",
           "name": "Read + classify all Q2 2026 documents in dph-dap/Přijaté Faktury/202602/ into workbench (období 2026_2)",
-          "status": "pending",
+          "status": "complete",
+          "started_at": "2026-07-19",
+          "completed_at": "2026-07-19",
+          "verify_result": "PASSED - user deleted the duplicate BDO PDF and added 15 missing supplier PDFs before the run; 29 documents read via 4 parallel agents (EUR suppliers, CZK regulars, 4 unknown PDFs, 6 fuel-receipt photos); 28 classified rows written (AWS March EUINCZ26-57569 excluded as duplicate). FX from AWS invoices: May 24.285, June 24.26; April provisional 24.515 (no April AWS invoice exists), July provisional 24.26. New suppliers: OSCOM (tlaková myčka), Maděra a Šípek/Elektrooáza (Nokia), Autosalon Klokočka (ojetá Škoda Octavia, DPH 85371.07, B.2), Hanibal sport, 6 fuel stations (Shell, ORLEN/Benzina skupinové DIČ CZ699000139, GBO Malá Skála, Tank ONO, EUROBIT, ČEPRO). 8 rows flagged for review.",
           "size": "medium",
           "added_at": "2026-07-19",
           "added_reason": "User /add-work request: prepare Q2 2026 DPH-DAP intake tranche for a clean session.",
@@ -295,36 +299,48 @@
         {
           "id": "1.11",
           "name": "Present draft Q2 workbench rows to user for review (BLOCKING)",
-          "status": "pending",
+          "status": "complete",
+          "started_at": "2026-07-19",
+          "completed_at": "2026-07-19",
           "size": "small",
           "depends_on": ["1.10"],
           "added_at": "2026-07-19",
           "verify": "User explicitly approves the draft workbench rows or lists edits; approved set saved back to workbench TSV",
+          "verify_result": "PASSED - user chose 'Approved — merge' via AskUserQuestion and excluded exactly one flagged row: AWS EUINCZ26-118964 (0.35 EUR, different AWS account 'CAG', no customer DIČ). Klokočka/OSCOM/Hanibal flags acknowledged and kept. Workbench rewritten to 27 approved rows.",
           "notes": "BLOCKING: do not proceed to 1.12 without explicit approval."
         },
         {
           "id": "1.12",
           "name": "Merge approved Q2 rows into Fakturace - prijate_faktury.tsv",
-          "status": "pending",
+          "status": "complete",
+          "started_at": "2026-07-19",
+          "completed_at": "2026-07-19",
           "size": "small",
           "depends_on": ["1.11"],
           "added_at": "2026-07-19",
-          "verify": "prijate_faktury.tsv row count increases by approved delta; awk duplicate check on (Dodavatel, Číslo_faktury) returns empty"
+          "verify": "prijate_faktury.tsv row count increases by approved delta; awk duplicate check on (Dodavatel, Číslo_faktury) returns empty",
+          "verify_result": "PASSED - appended 27 rows (data rows 57 → 84); duplicate check returns empty."
         },
         {
           "id": "1.13",
           "name": "Intake issued invoice 20260003 (BRAINMARKET) into Fakturace - vydane_faktury.tsv",
-          "status": "pending",
+          "status": "complete",
+          "started_at": "2026-07-19",
+          "completed_at": "2026-07-19",
           "size": "small",
           "depends_on": ["1.11"],
           "added_at": "2026-07-19",
           "added_reason": "Pending follow-up since the work-report session; invoice verified: DUZP 20.04.2026, základ 810000 / DPH 170100 / celkem 980100 CZK, Tuzemsko, A.4, Období 2026_2.",
-          "verify": "vydane_faktury.tsv row count +=1 (20260003, Celkem 980100, Zařazení_KH A.4, Období 2026_2); no duplicate (Odběratel, Číslo_faktury) pairs"
+          "verify": "vydane_faktury.tsv row count +=1 (20260003, Celkem 980100, Zařazení_KH A.4, Období 2026_2); no duplicate (Odběratel, Číslo_faktury) pairs",
+          "verify_result": "PASSED - row appended (data rows 5 → 6); duplicate check empty."
         },
         {
           "id": "1.14",
           "name": "Regenerate DAP.tsv 2026_2 lines (1, 5, 10, 12, 40, 43) + KH_A4 + KH_B2 for period 2026_2",
-          "status": "pending",
+          "status": "complete",
+          "started_at": "2026-07-19",
+          "completed_at": "2026-07-19",
+          "verify_result": "PASSED - DAP 2026_2 computed from merged ledgers: line 1 = 810000/170100 (issued 20260003); line 5 = 591.79/124.28 (3 Google §9(1)); line 10 = 0/0; line 12 = 1310.49/275.2 (3 Anthropic §108); line 40 = 432443.68/90813.34 (21 domestic received); line 43 = 1902.28/399.48 (= 5 + 12). KH_A4 gained 20260003 row (5 data rows, all 15 cols). KH_B2 gained Klokočka 1442600482 row (3 data rows) with totals row recomputed (643990.67/135238.04/779228.71). Incident during regeneration: Python read_text() universal-newline translation converted bare CRs embedded in two legacy BRAINMARKET Poznámka fields of KH_A4 into real newlines, fragmenting those rows — repaired by rejoining fragments (space-joined) and verified all rows 15 cols; DAP line endings normalized CRLF→LF as a side effect (structure verified intact). Lesson encoded into /parse-invoices 'File-format landmines' section.",
           "size": "small",
           "depends_on": ["1.12", "1.13"],
           "added_at": "2026-07-19",
@@ -345,7 +361,7 @@
       "status": "in_progress",
       "started_at": "2026-04-20",
       "completed_at": null,
-      "etapa_1_status": "complete (vykaz-prac.md ready); faktura 20260003 still to be intaked into vydane_faktury.tsv by future Phase 1 tranche",
+      "etapa_1_status": "complete (vykaz-prac.md ready); faktura 20260003 intaked into vydane_faktury.tsv on 2026-07-19 (task 1.13)",
       "description": "Příprava vydaných faktur a jejich příloh (výkazy prací) pro jednotlivé odběratele / etapy. První etapa: faktura 20260003 pro BRAINMARKET s.r.o., období 1.9.2025–17.4.2026, předmět = vývoj/programování/testování SW komponent pro systémy výroby a prodeje. Pracovní prostor: projects/brainmarket/etapa-1/. Zdrojové repozitáře (VaV výstupy) mimo tento repo: ~/aps-brm-products-playbook, ~/app-brm-manufacturing-dictionary, ~/app-brm-manufacturing-products.",
       "tasks": [
         {

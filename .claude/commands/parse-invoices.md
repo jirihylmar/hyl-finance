@@ -191,8 +191,8 @@ For each affected period:
 
 ### 7. Regenerate KH section samples
 
-- For received rows with `Celkem_CZK ≥ 10000` AND `Typ = Tuzemsko` AND `Zařazení_KH = B.2`: append to `Fakturace - KH_B2_prijate_nad_10k.tsv`.
-- For issued rows with `Celkem_CZK ≥ 10000` AND `Typ = Tuzemsko` (→ A.4): append to `Fakturace - KH_A4_vydane_nad_10k.tsv`.
+- For received rows with `Celkem_CZK ≥ 10000` AND `Typ = Tuzemsko` AND `Zařazení_KH = B.2`: append to `Fakturace - KH_B2_prijate_nad_10k.tsv`. **The B.2 file ends with a totals row** (empty first 7 columns, then Σ Základ / Σ DPH / Σ Celkem) — insert new data rows before it and recompute the sums.
+- For issued rows with `Celkem_CZK ≥ 10000` AND `Typ = Tuzemsko` (→ A.4): append to `Fakturace - KH_A4_vydane_nad_10k.tsv`. In existing A.4 rows the `Zařazení_KH` and `Období` columns are left **empty** — mirror that.
 - Match each file's existing header exactly — the two layouts differ: `KH_A4_vydane_nad_10k.tsv` uses a 15-column layout with a leading `Oddíl` column (value `A.4`) and a description column; `KH_B2_prijate_nad_10k.tsv` uses a 12-column layout (the received-ledger columns minus `období`, no `Oddíl`). Read the header before appending.
 
 ### 8. Verify
@@ -217,7 +217,7 @@ Mark the invoked tasks complete in `progress.json` (invoke `/update-progress` or
 
 | Supplier | DIČ / ID | Typ | KH | FX source |
 |---|---|---|---|---|
-| O2 Czech Republic a.s. | CZ60193336 | Tuzemsko | B.3 (always <10k) | — CZK native |
+| O2 Czech Republic a.s. | CZ60193336 | Tuzemsko | B.3 (always <10k) | — CZK native. Invoice total includes a non-VAT installment portion (splátkový prodej): record `Základ/DPH/Celkem` from the VAT portion only (e.g. 659.5/138.5/798), full invoice total goes to `Částka_orig` (e.g. 966) |
 | BDO Euro-Trend s.r.o. | CZ61500542 | Tuzemsko | B.3 (always <10k) | — CZK native |
 | STARNET, s.r.o. | CZ26041561 | Tuzemsko | B.3 | — CZK native |
 | AWS EMEA Czech Branch | CZ685187560 | Tuzemsko | B.3 | Rate printed on invoice |
@@ -237,3 +237,10 @@ When a **new supplier** appears, do not guess — read the PDF fully, check DIČ
 - **Don't commit any file under `dph-dap/`.** Real financial data; gitignored for a reason.
 - **Don't classify a Polish-supplier-with-CZ-VAT row without confirming.** OSS distance sales to B2C consumers are non-deductible for the CZ buyer. Always ask when buyer's DIČ is blank on an invoice that charges CZ VAT from a non-CZ supplier.
 - **Don't append when you should revise.** If a prior-month EUR row exists with a provisional FX rate and the authoritative rate is now known, edit-in-place — do not append a second row.
+
+## File-format landmines (learned the hard way)
+
+- **Legacy rows contain bare carriage returns INSIDE the Poznámka field** (iDoklad copy-paste; e.g. the 2025 BRAINMARKET rows in `vydane_faktury.tsv` and `KH_A4`). awk (records = `\n`) sees one row; Python's `splitlines()` fragments it into several.
+- **Never round-trip these TSVs through Python's default `read_text()`/`write_text()`** — universal-newline translation silently converts embedded bare CRs (and CRLF endings) into real newlines, corrupting row structure on rewrite. Read bytes or pass `newline=""`; split records on `\n` only; strip a trailing `\r` per line.
+- **After any programmatic rewrite, verify structure**: every record has the expected column count (`awk -F'\t' 'NF!=13'` for ledgers). If rows got fragmented, repair by rejoining consecutive fragments until the column count is reached (join with a space).
+- The ledgers mix line endings (CRLF on old Windows-edited rows, LF on appended ones) — this is harmless; append with plain `\n` and never "normalize" the whole file.

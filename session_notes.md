@@ -601,3 +601,32 @@ Called `get_solution_overview` + `get_help` on every bmpss connector:
 - Source: user request "prepare everything for the clean session — goal parse invoices, 2nd quarter 2026 dph-dap"; approved via AskUserQuestion.
 - Readiness facts recorded in task 1.10 notes: known duplicate BDO 202600186 (already in ledger under 2026_1); 16 usual monthly invoices missing from 202602/ (AWS/Anthropic/Google/O2/STARNET Apr–Jun, BDO June); provisional FX fallback 24.515 (Mar 2026) if AWS month invoices absent; issued 20260003 verified (DUZP 20.04.2026, 810000/170100/980100 CZK, A.4, 2026_2).
 - DAP.tsv already carries zero-filled 2026_2 placeholder rows — in-place Edit ready.
+
+## Session: 2026-07-19 - Tasks 1.10-1.14 (Q2 2026 intake tranche)
+
+### Completed This Session
+- Task 1.10: read + classify all 29 Q2 documents in 202602/ via 4 parallel agents ✓
+- Task 1.11: blocking user review — approved with 1 exclusion (AWS CAG EUINCZ26-118964) ✓
+- Task 1.12: merged 27 rows into received ledger (57 → 84 data rows, dup check empty) ✓
+- Task 1.13: intaked issued 20260003 BRAINMARKET (810000/170100/980100, A.4, 2026_2) ✓
+- Task 1.14: DAP 2026_2 regenerated (1: 810000/170100; 5: 591.79/124.28; 10: 0/0; 12: 1310.49/275.2; 40: 432443.68/90813.34; 43: 1902.28/399.48); KH_A4 +20260003 (5 rows); KH_B2 +Klokočka (3 rows, totals 643990.67/135238.04/779228.71) ✓
+
+### Key facts for future tranches
+- FX: May 2026 = 24.285, June 2026 = 24.26 (AWS-authoritative). PROVISIONAL: Google April row at 24.515 (no April AWS invoice exists — AWS jumped Mar→May), Anthropic 0017 (July DUZP) at 24.26. Revise via --revise-fx when/if authoritative rates arrive.
+- April 2026 has NO invoices from O2, STARNET, Anthropic either — their cadence jumped Mar→May. Not an intake error; noted in case the accountant asks.
+- Flags kept in ledger Poznámka: Klokočka car (zero-balance final invoice — verify no separate advance tax doc exists), OSCOM (VAT sits on advance doc 26VZF13187 not in batch), Elektrooáza (buyer misspelled, wrong IČO, no DIČ — usable as zjednodušený DD ≤10k), Hanibal (questionable business expense; user kept it).
+- ORLEN/Benzina fuel receipts: use VAT-group DIČ CZ699000139 (not the company DIČ).
+
+### Incident: newline-translation corruption (repaired)
+Python read_text() universal-newline mode converted bare CRs embedded in legacy iDoklad Poznámka fields (BRAINMARKET rows) into real newlines during KH_A4 rewrite — two rows fragmented. Repaired by rejoining fragments; all rows verified 15 cols. DAP endings normalized CRLF→LF (structure intact). Lesson encoded into /parse-invoices → "File-format landmines".
+
+### Step 2b consolidation slice
+- Grounded: .claude/commands/generate-architecture.md (distributed default → report-only). Verdict: current-canonical; the 2 "missing docs/architecture/*" refs from the session-start quick check are conditional workflow targets the skill itself creates — false positives of the ref regex, no defect to report. Stamped in grounded map.
+
+### Skill maintenance (8a)
+- /parse-invoices updated: KH_B2 totals-row rule, KH_A4 empty-column convention, O2 VAT-portion convention, new "File-format landmines" section (bare CRs, no naive read_text round-trips, structure verification after rewrites).
+
+### Git Status
+| Repo | Status |
+|------|--------|
+| orchestration | pushed (after this commit) |
