@@ -144,6 +144,26 @@ If the same invoice is discovered in a new tranche (e.g. AWS EUINCZ26-16150 turn
 - Resolve folders. Default to `dph-dap/Přijaté Faktury/YYYYMM/` (pick the most recent non-empty) and `dph-dap/Vydané faktury/YYYY/`.
 - List PDFs in each folder with `Bash ls`. Report count.
 
+### 1a. Monthly-pattern completeness check (BEFORE reading PDFs)
+
+Six suppliers bill monthly; a missing month is almost always a not-yet-downloaded invoice, and for
+AWS it also means a missing authoritative FX rate. Derive the expectation from the ledger, not from
+memory: for each supplier below, list its DUZP months already in `prijate_faktury.tsv`, then check
+the batch folder covers every month from the last recorded DUZP up to the filing period's end.
+
+| Supplier | Cadence (DUZP) | Invoice-number pattern |
+|---|---|---|
+| AWS EMEA Czech Branch | last day of month | `EUINCZ<YY>-<seq>` (also carries the month's FX rate) |
+| Anthropic, PBC | ~6th of month | `A0WDEPAH-<seq>` (sequential, one per month) |
+| Google Cloud EMEA | last day of month | 10-digit, ascending |
+| O2 Czech Republic | ~7th of month | 10-digit, ascending |
+| STARNET, s.r.o. | mid-month | `26XXXXXXXX`, ascending |
+| BDO Euro-Trend (T-Mobile) | last day of month | `2026XXXXX`, ascending |
+
+Report any gaps to the user BEFORE classification (they may want to download the missing PDFs
+first). A genuinely skipped month happens (e.g. April 2026 had no AWS/O2/STARNET/Anthropic invoice
+at all) — record the gap in the review summary so it is a documented fact, not a silent hole.
+
 ### 2. Read every PDF
 
 - Use the `Read` tool on each PDF file. It extracts text and pages (handles Czech UTF-8 correctly).
@@ -166,6 +186,7 @@ For issued CZK-denominated invoices, leave `Částka_orig` and `Měna` **empty**
 
 Summarize the batch:
 - Total row count, split by supplier and by `Zařazení_KH`.
+- Monthly-pattern gaps found in step 1a (missing supplier-months), stated explicitly.
 - List each `[FLAG]` row with the concern.
 - Period-assignment distribution (should be a single period).
 - FX rate source used for EUR rows per month.

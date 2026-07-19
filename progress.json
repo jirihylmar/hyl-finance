@@ -4,14 +4,14 @@
   "description": "Local Python CLI worker for Czech government and tax filing automation. Work is being driven ad-hoc via /add-work (incremental task lifecycle, not upfront spec).",
   "created_at": "2026-04-20",
   "last_updated": "2026-07-19",
-  "last_session_summary": "Session 5 (2026-07-19): Session start housekeeping (committed distributed defaults, first /repo-hygiene baseline pass — grounded both project skills, fixed 3 stale claims in parse-invoices, bootstrapped docs/terminology.md, set hygiene clock). Then Q2 2026 intake tranche end-to-end: registered tasks 1.10-1.14 via /add-work, read 29 documents via 4 parallel agents (incl. 6 fuel-receipt photos and 4 first-time suppliers), built 28-row workbench 2026_2, user approved with 1 exclusion (AWS CAG EUINCZ26-118964), merged 27 received rows (ledger 57→84), intaked issued 20260003 BRAINMARKET (980100 CZK, A.4), regenerated DAP 2026_2 (line 40 = 432443.68/90813.34 incl. Škoda Octavia purchase DPH 85371.07) + KH_A4 + KH_B2. Provisional FX: Google April 24.515, Anthropic 0017 (July) 24.26 — revise via --revise-fx when AWS April/July invoices arrive (April AWS invoice may not exist at all; no April invoices from O2/STARNET/Anthropic either). Repaired KH_A4 rows fragmented by a newline-translation bug; lesson encoded into /parse-invoices. Previous (Session 4): BRAINMARKET work-report attachment finalized + /prepare-work-report skill created.",
+  "last_session_summary": "Session 5 (2026-07-19): Session start housekeeping (committed distributed defaults, first /repo-hygiene baseline pass — grounded both project skills, fixed 3 stale claims in parse-invoices, bootstrapped docs/terminology.md, set hygiene clock). Then Q2 2026 intake tranche end-to-end: registered tasks 1.10-1.14 via /add-work, read 29 documents via 4 parallel agents (incl. 6 fuel-receipt photos and 4 first-time suppliers), built 28-row workbench 2026_2, user approved with 1 exclusion (AWS CAG EUINCZ26-118964), merged 27 received rows (ledger 57→84), intaked issued 20260003 BRAINMARKET (980100 CZK, A.4), regenerated DAP 2026_2 (line 40 = 432443.68/90813.34 incl. Škoda Octavia purchase DPH 85371.07) + KH_A4 + KH_B2. Provisional FX: Google April 24.515, Anthropic 0017 (July) 24.26 — revise via --revise-fx when AWS April/July invoices arrive (April AWS invoice may not exist at all; no April invoices from O2/STARNET/Anthropic either). Repaired KH_A4 rows fragmented by a newline-translation bug; lesson encoded into /parse-invoices. Previous (Session 4): BRAINMARKET work-report attachment finalized + /prepare-work-report skill created. Late in Session 5: task 0.9 executed (nested syndicate-playbooks-examples/ removed after verifying clean+pushed+canonical copy at ~) closing Phase 0; /parse-invoices gained step 1a monthly-pattern completeness check (6 monthly suppliers, cadence+number patterns, gaps reported before classification).",
   "_session_4_summary_archived": "Session 4 (2026-04-20): Iterated on Phase 2 etapa-1 BRAINMARKET work-report attachment through multi-round ping-pong with user. Initial draft rejected for being git-rehash rather than capability protocol; rewrote after deep-read of three source repos, then globally rewrote again after live-MCP query of the bmpss ProdSpec Manager gateway (11 MCP instances) — produced authoritative English protocol covering BPSS supplier parser, central multilingual dictionary (9 thesauri, 24 languages, 14 legislation/authority sources including EU Reg 1924/2006 + 432/2012 + 13 Art. 14 regs + 116/2010 + 1047/2012 + Dir 2002/46/EC + Reg 2017/2470 + Reg 2015/2283 + Reg 1169/2011 Annex XIII + Vyhláška 58/2018 Sb. + SZPI Vodítka 2024 + EC Food Portal + EFSA + Wikidata/PubChem), and BSS/BMPSS publication app. Added .mcp.json so bmpss MCP connector loads in this project. Tested PDF+DOCX render (pandoc + xelatex + Latin Modern Roman); fixed Identification block line-breaks and font issues. Renamed outputs to 'Vydaná faktura - 20260003-2 - příloha Výkaz prací.{md,pdf,docx}'. Captured workflow + ping-pong lessons into new project skill /prepare-work-report (.claude/commands/prepare-work-report.md, 272 lines) covering 6-question up-front checklist, MCP-first playbook, content DO/DON'T rules, 12 anti-pattern corrections, acceptance checklist.",
   "phases": {
     "phase_0_planning": {
       "name": "Planning & Setup",
-      "status": "in_progress",
+      "status": "complete",
       "started_at": "2026-04-20",
-      "completed_at": null,
+      "completed_at": "2026-07-19",
       "description": "Phase 0 REDEFINED: after Session 2, user directed project onto /add-work incremental lifecycle. Original upfront-spec flow (tasks 0.3-0.8) is superseded. Only understanding tasks (0.1, 0.1a, 0.2) remain useful. 0.9 (delete examples folder) is deferred pending user decision.",
       "tasks": [
         {
@@ -102,10 +102,13 @@
         {
           "id": "0.9",
           "name": "Remove examples repo and commit Phase 0 completion",
-          "status": "pending",
+          "status": "complete",
+          "started_at": "2026-07-19",
+          "completed_at": "2026-07-19",
           "size": "small",
           "verify": "syndicate-playbooks-examples/ removed, git log shows Phase 0 complete commit",
-          "notes": "Deferred. User retracted the 'finish Phase 0 this session' directive; whether to delete the examples folder is no longer tied to an approval. Leave pending; user can trigger whenever."
+          "verify_result": "PASSED - nested checkout verified clean, 0/0 vs origin, and canonical copy exists at ~/syndicate-playbooks-examples before rm -rf; folder removed (was gitignored, no tracked changes). Phase 0 complete commit is this progress commit.",
+          "notes": "Was deferred since 2026-04-20; user triggered on 2026-07-19. Note: context_hints.examples_path now points at a removed folder — resolve by presence as always."
         }
       ],
       "artifacts": []

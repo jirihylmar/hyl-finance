@@ -630,3 +630,18 @@ Python read_text() universal-newline mode converted bare CRs embedded in legacy 
 | Repo | Status |
 |------|--------|
 | orchestration | pushed (after this commit) |
+
+## Session: 2026-07-19 - Task 0.9 + /parse-invoices monthly check (late Session 5)
+
+### Completed This Session
+- Task 0.9: removed nested syndicate-playbooks-examples/ ✓ — pre-checks: working tree clean, 0/0 vs origin, canonical checkout confirmed at ~/syndicate-playbooks-examples. Folder was gitignored → no tracked changes. **Phase 0 closed** (all tasks complete/superseded; no working dirs or index refs to sweep; progress.json 25 KB, no compaction due).
+- /parse-invoices skill: new step 1a "Monthly-pattern completeness check" — 6 monthly suppliers (AWS, Anthropic, Google, O2, STARNET, BDO) with cadence + invoice-number patterns derived from ledger; gaps reported to user BEFORE classification; review summary now lists gaps explicitly. Claims grounded at touch: cadences and number patterns verified against ledger rows this session.
+
+### Notes
+- context_hints.examples_path now points at a removed folder — future sessions resolve by presence (standing rule), noted in task 0.9.
+- Step 2b consolidation slice: already done earlier this session close (generate-architecture.md) — one per session, not repeated.
+
+### Git Status
+| Repo | Status |
+|------|--------|
+| orchestration | pushed (after this commit) |
