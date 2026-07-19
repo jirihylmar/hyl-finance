@@ -595,3 +595,9 @@ Called `get_solution_overview` + `get_help` on every bmpss connector:
 ### Context for next session
 - Hygiene clock set (2026-07-19); per-session grounding rotation can now run at session close.
 - Still pending: intake issued invoice 20260003 (BRAINMARKET) into the issued ledger via /parse-invoices (untracked follow-up); task 0.9 (delete syndicate-playbooks-examples/) still deferred.
+
+### Work Added (Session 5, 2026-07-19)
+- Tasks 1.10–1.14 in phase_1_invoice_intake: Q2 2026 intake tranche (read+classify 202602/ folder → blocking review → merge received → intake issued 20260003 → regenerate DAP 2026_2 + KH_A4 + KH_B2).
+- Source: user request "prepare everything for the clean session — goal parse invoices, 2nd quarter 2026 dph-dap"; approved via AskUserQuestion.
+- Readiness facts recorded in task 1.10 notes: known duplicate BDO 202600186 (already in ledger under 2026_1); 16 usual monthly invoices missing from 202602/ (AWS/Anthropic/Google/O2/STARNET Apr–Jun, BDO June); provisional FX fallback 24.515 (Mar 2026) if AWS month invoices absent; issued 20260003 verified (DUZP 20.04.2026, 810000/170100/980100 CZK, A.4, 2026_2).
+- DAP.tsv already carries zero-filled 2026_2 placeholder rows — in-place Edit ready.

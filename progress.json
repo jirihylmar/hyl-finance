@@ -281,6 +281,54 @@
           "added_reason": "User request: 'make a skill parse-invoices. the skill will read given folder with prijate and vydane and populate respective files with rules we tuned'. Consolidates all rules tuned in tasks 1.1-1.8 into a reusable skill.",
           "verify": ".claude/commands/parse-invoices.md exists; documents DAP line mapping, KH section rules, Typ classification, FX method, duplicate check, filing-period convention; skill appears in /help listing",
           "verify_result": "PASSED - .claude/commands/parse-invoices.md (~260 lines) with YAML frontmatter (description + allowed-tools) so it registers as a project skill; skill now listed as 'parse-invoices: Ingest invoice PDFs ... (project)'. Covers: arguments, files touched, Typ rules, KH section rules, DAP line mapping, FX method incl. retro-revision, filing-period override, duplicate check, known-supplier playbook, anti-patterns."
+        },
+        {
+          "id": "1.10",
+          "name": "Read + classify all Q2 2026 documents in dph-dap/Přijaté Faktury/202602/ into workbench (období 2026_2)",
+          "status": "pending",
+          "size": "medium",
+          "added_at": "2026-07-19",
+          "added_reason": "User /add-work request: prepare Q2 2026 DPH-DAP intake tranche for a clean session.",
+          "verify": "dph-dap/.workbench-2026_2.tsv (gitignored) has one row per accepted document with all 13 received columns filled and období=2026_2; unknowns flagged [FLAG]; duplicate BDO 202600186 excluded with note",
+          "notes": "Inputs: 2 BDO invoices (202600214 Apr, 202600250 May), 4 unidentified PDFs (FAKTURA_26VF40088, PE10212626_..., Scan2026-07-13_111018, download.pdf), 6 phone photos (PXL_*.jpg — readable with Read tool); ignore desktop.ini. Known duplicate: 2026_03_Faktura 202600186.pdf already in ledger under 2026_1. MISSING vs monthly pattern (16 invoices): AWS + Anthropic + Google + O2 + STARNET for Apr/May/Jun 2026, BDO June — user to supply into 202602/ before or during session; if EUR rows must be written without the month's AWS invoice, use provisional carry-over rate 24.515 (Mar 2026) with [FLAG: FX provisional] and revise later."
+        },
+        {
+          "id": "1.11",
+          "name": "Present draft Q2 workbench rows to user for review (BLOCKING)",
+          "status": "pending",
+          "size": "small",
+          "depends_on": ["1.10"],
+          "added_at": "2026-07-19",
+          "verify": "User explicitly approves the draft workbench rows or lists edits; approved set saved back to workbench TSV",
+          "notes": "BLOCKING: do not proceed to 1.12 without explicit approval."
+        },
+        {
+          "id": "1.12",
+          "name": "Merge approved Q2 rows into Fakturace - prijate_faktury.tsv",
+          "status": "pending",
+          "size": "small",
+          "depends_on": ["1.11"],
+          "added_at": "2026-07-19",
+          "verify": "prijate_faktury.tsv row count increases by approved delta; awk duplicate check on (Dodavatel, Číslo_faktury) returns empty"
+        },
+        {
+          "id": "1.13",
+          "name": "Intake issued invoice 20260003 (BRAINMARKET) into Fakturace - vydane_faktury.tsv",
+          "status": "pending",
+          "size": "small",
+          "depends_on": ["1.11"],
+          "added_at": "2026-07-19",
+          "added_reason": "Pending follow-up since the work-report session; invoice verified: DUZP 20.04.2026, základ 810000 / DPH 170100 / celkem 980100 CZK, Tuzemsko, A.4, Období 2026_2.",
+          "verify": "vydane_faktury.tsv row count +=1 (20260003, Celkem 980100, Zařazení_KH A.4, Období 2026_2); no duplicate (Odběratel, Číslo_faktury) pairs"
+        },
+        {
+          "id": "1.14",
+          "name": "Regenerate DAP.tsv 2026_2 lines (1, 5, 10, 12, 40, 43) + KH_A4 + KH_B2 for period 2026_2",
+          "status": "pending",
+          "size": "small",
+          "depends_on": ["1.12", "1.13"],
+          "added_at": "2026-07-19",
+          "verify": "DAP 2026_2 lines match sums of ledger rows filtered to období/Období 2026_2 per the DAP line mapping; KH_A4 gains the 20260003 row (980100 ≥ 10k); KH_B2 gains every received Tuzemsko row ≥ 10000 CZK in 2026_2 (12-column layout, no Oddíl)"
         }
       ],
       "artifacts": [
