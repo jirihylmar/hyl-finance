@@ -6,7 +6,15 @@ allowed-tools:
   - Edit
   - Glob
   - Grep
+  - Bash
 ---
+
+<!--
+  Centrally distributed by /distribute-defaults from syndicate-playbooks-examples.
+  Project-specific additions go in .claude/local-overlays/<this-filename> as
+  splice fragments (see /distribute-defaults for the overlay format).
+  Direct edits to this file will be flagged on the next distribution.
+-->
 
 # Generate Phases
 
@@ -37,13 +45,16 @@ Check for environment info in:
 - Multiple MCP tools
 - Integration notes
 
-**If missing:** STOP and direct user to run `/start-session` first to collect environment info.
+**If missing:** STOP and direct user to run `/setup` (its environment-collection step gathers
+account/region/MCP/naming), or to add the values to `CLAUDE.md` / `input/environment.md` directly —
+then re-run this command.
 
 ### 2. Specification Must Be Approved
 
-Check for approval indicator:
-- `IMPLEMENTATION_PLAN.md` contains `## Status: Approved`
-- OR `session_notes.md` contains explicit approval record
+Check for approval indicator (the Phase 0 spec-approval task records the approval — it does not
+appear on its own):
+- `session_notes.md` contains an explicit approval record from the spec-approval task, OR
+- `IMPLEMENTATION_PLAN.md` carries a `## Status: Approved` line the approver added
 
 **If not approved:** STOP and inform user:
 ```
@@ -56,7 +67,8 @@ The specification must be reviewed and approved first.
 2. Provide explicit approval ("approved", "looks good", etc.)
 3. Then run `/generate-phases`
 
-Run `/start-session` to initiate the approval process.
+Approval is given directly in the conversation — the spec-approval task in Phase 0 presents
+IMPLEMENTATION_PLAN.md and blocks until you approve it.
 ```
 
 ### 3. Phases Must Not Already Exist
@@ -149,7 +161,7 @@ tasks/
 
 **GOOD (atomic):**
 ```json
-{"id": "2.1", "name": "Create Cognito User Pool via CDK", "verify": "aws cognito list-user-pools shows pool", "size": "small"},
+{"id": "2.1", "name": "Create Cognito User Pool via CDK", "verify": "aws cognito-idp list-user-pools --max-results 10 shows pool", "size": "small"},
 {"id": "2.2", "name": "Add signup Lambda function", "verify": "Lambda exists in console", "size": "small"},
 {"id": "2.3", "name": "Add login Lambda function", "verify": "Lambda exists", "size": "small"},
 {"id": "2.4", "name": "Create API Gateway auth endpoints", "verify": "POST /auth/signup returns 200", "size": "medium"},

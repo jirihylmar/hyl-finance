@@ -10,6 +10,13 @@ allowed-tools:
   - mcp__aws-*__call_aws
 ---
 
+<!--
+  Centrally distributed by /distribute-defaults from syndicate-playbooks-examples.
+  Project-specific additions go in .claude/local-overlays/<this-filename> as
+  splice fragments (see /distribute-defaults for the overlay format).
+  Direct edits to this file will be flagged on the next distribution.
+-->
+
 # Setup
 
 Initialize a new project from a playbook template, or inject commands into an existing project.
@@ -74,11 +81,15 @@ Write to `input/environment.md`.
 ### 3. Copy from Playbook Template
 
 ```bash
-# Copy all template files
-cp syndicate-playbooks-examples/{selected-playbook}/IMPLEMENTATION_PLAN.md ./
-cp syndicate-playbooks-examples/{selected-playbook}/progress.json ./
-cp syndicate-playbooks-examples/{selected-playbook}/session_notes.md ./
-cp -r syndicate-playbooks-examples/{selected-playbook}/tasks/ ./
+# Copy the playbook's reference files — playbooks vary in what they ship
+# (e.g. playbook-mcp-mono-repo has only CLAUDE.md/README.md/progress.json),
+# so copy each file only if the selected playbook actually provides it.
+for f in IMPLEMENTATION_PLAN.md progress.json session_notes.md; do
+  [ -f "syndicate-playbooks-examples/{selected-playbook}/$f" ] \
+    && cp "syndicate-playbooks-examples/{selected-playbook}/$f" ./
+done
+[ -d "syndicate-playbooks-examples/{selected-playbook}/tasks" ] \
+  && cp -r "syndicate-playbooks-examples/{selected-playbook}/tasks/" ./
 
 # Copy commands
 mkdir -p .claude/commands
@@ -86,6 +97,15 @@ cp syndicate-playbooks-examples/_project-template/.claude/commands/*.md .claude/
 
 # Copy CLAUDE.md template
 cp syndicate-playbooks-examples/_project-template/CLAUDE.md.template ./CLAUDE.md
+
+# Install the commit guard (mechanical protection against `git add -A` sweeping
+# build artifacts) + the baseline .gitignore, and arm it for this clone.
+mkdir -p .claude/hooks
+cp syndicate-playbooks-examples/_project-template/.claude/hooks/pre-commit .claude/hooks/
+cp -n syndicate-playbooks-examples/_project-template/.claude/hooks/artifact-guard.allow .claude/hooks/ 2>/dev/null || true
+chmod +x .claude/hooks/pre-commit          # BEFORE git add → the index records mode 100755
+cp syndicate-playbooks-examples/_project-template/.gitignore ./.gitignore
+git config core.hooksPath .claude/hooks    # repo-local config — arms the guard for this clone
 ```
 
 ### 4. Customize for This Project
@@ -150,7 +170,10 @@ cdk bootstrap aws://{account}/{region}
 ### 9. Commit Orchestration Repo
 
 ```bash
-git add -A
+# Scoped add by named paths — NEVER `git add -A` (that is the exact pattern that
+# once swept a 36MB build zip into history). List only the framework paths that
+# exist; drop any that don't.
+git add -- CLAUDE.md progress.json IMPLEMENTATION_PLAN.md session_notes.md .gitignore .claude/ tasks/ input/
 git commit -m "setup: Initialize from {playbook} template
 
 Template: {playbook}
@@ -176,8 +199,15 @@ Check what exists:
 ### 2. Copy Commands
 
 ```bash
-mkdir -p .claude/commands
+mkdir -p .claude/commands .claude/hooks
 cp syndicate-playbooks-examples/_project-template/.claude/commands/*.md .claude/commands/
+
+# Commit guard (mechanical protection against `git add -A` sweeping build artifacts)
+cp syndicate-playbooks-examples/_project-template/.claude/hooks/pre-commit .claude/hooks/
+cp -n syndicate-playbooks-examples/_project-template/.claude/hooks/artifact-guard.allow .claude/hooks/ 2>/dev/null || true
+chmod +x .claude/hooks/pre-commit          # BEFORE git add → the index records mode 100755
+cp -n syndicate-playbooks-examples/_project-template/.gitignore ./.gitignore 2>/dev/null || true   # seed only if absent (don't clobber an existing one)
+git config core.hooksPath .claude/hooks
 ```
 
 ### 3. Create progress.json (if missing)
@@ -213,7 +243,7 @@ Copy template and fill in values.
 ### 5. Commit Changes
 
 ```bash
-git add .claude/ progress.json CLAUDE.md
+git add -- .claude/ progress.json CLAUDE.md .gitignore
 git commit -m "setup: Add playbook commands to existing project
 
 🤖 Generated with Claude Code"
@@ -260,7 +290,7 @@ Run `/start-session` to begin work.
 
 ## Notes
 
-- Playbook templates contain complete specs, phases, and tasks
-- `/setup` copies and customizes - no need to generate phases
+- Playbooks vary in what they ship (see Scenario A step 3) — copy what exists. Some carry a spec/phases/tasks; some carry only CLAUDE.md/README.md/progress.json.
+- If the selected playbook ships a complete spec + tasks, `/setup` copies and customizes them — no need to generate phases. If it does not, follow the Phase 0 flow (draft the spec, then `/generate-phases`).
 - For additions mid-project, use `/add-work`
 - Commands in `_project-template/.claude/commands/` are the source of truth

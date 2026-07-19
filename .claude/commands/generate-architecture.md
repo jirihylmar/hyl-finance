@@ -5,7 +5,15 @@ allowed-tools:
   - Bash
   - Write
   - Edit
+  - AskUserQuestion
 ---
+
+<!--
+  Centrally distributed by /distribute-defaults from syndicate-playbooks-examples.
+  Project-specific additions go in .claude/local-overlays/<this-filename> as
+  splice fragments (see /distribute-defaults for the overlay format).
+  Direct edits to this file will be flagged on the next distribution.
+-->
 
 # Generate Architecture Diagram
 
@@ -30,7 +38,9 @@ sudo apt-get install -y graphviz
 ```
 
 **Arguments:**
-- `name` - Optional. Name for the diagram (default: project name from progress.json)
+- `name` - Optional. Name for the diagram — used only when CREATING a new `generate.py`
+  (default: project name from progress.json). An existing `generate.py` hardcodes its own
+  `OUTPUT_FILE`; that name wins and the argument is ignored.
   - Output: `docs/architecture/{name}_architecture.png`
 
 ---
@@ -39,7 +49,9 @@ sudo apt-get install -y graphviz
 
 ### 1. Determine Diagram Name
 
-If name argument provided, use it. Otherwise:
+If `docs/architecture/generate.py` already exists, read the effective name from its `OUTPUT_FILE`
+(the script's hardcoded name wins — a `name` argument does not change an existing script).
+Otherwise, for a new script: use the name argument if provided, else:
 - Read `progress.json` for project name
 - Fall back to directory name
 
@@ -131,8 +143,8 @@ python3 docs/architecture/generate.py
 ```
 
 Requirements:
-- `pip3 install diagrams`
-- `apt-get install graphviz`
+- `pip3 install --break-system-packages diagrams`
+- `sudo apt-get install -y graphviz`
 ```
 
 ---

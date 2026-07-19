@@ -10,6 +10,13 @@ allowed-tools:
   - AskUserQuestion
 ---
 
+<!--
+  Centrally distributed by /distribute-defaults from syndicate-playbooks-examples.
+  Project-specific additions go in .claude/local-overlays/<this-filename> as
+  splice fragments (see /distribute-defaults for the overlay format).
+  Direct edits to this file will be flagged on the next distribution.
+-->
+
 # Setup Workflow Only
 
 Inject the playbook workflow system into an existing project that wasn't created with `/setup`.
@@ -126,11 +133,9 @@ Read the existing file and append workflow sections. Do NOT overwrite existing c
 This project uses playbook session discipline for task tracking.
 
 ### Commands
-- `/start-session` - Begin work session
-- `/update-progress` - Save progress, end session
-- `/add-work` - Add phases or tasks
-- `/generate-phases` - Generate tasks from spec
-- `/check-aws` - Verify AWS resources
+The live inventory is `.claude/commands/` — one file per command; `/start-session` enumerates
+it every session (do not maintain a hardcoded list here). Core workflow: `/start-session` →
+work → `/update-progress`.
 
 ### Session Discipline
 - Start each session with `/start-session`
@@ -317,11 +322,12 @@ Use Edit tool to remove the `syndicate-playbooks-examples/` line from `.gitignor
 ## Step 9: Commit Workflow Files
 
 ```bash
-git add .claude/ progress.json session_notes.md CLAUDE.md .gitignore
+git add .claude/ progress.json session_notes.md CLAUDE.md
+[ -f .gitignore ] && git add .gitignore   # only if present — new projects may not have one yet
 git commit -m "workflow: Add playbook session discipline
 
 Added:
-- .claude/commands/ (8 commands)
+- .claude/commands/ (distributed default commands)
 - progress.json (task tracking)
 - session_notes.md (session handoff)
 
@@ -344,18 +350,17 @@ Removed:
 ### Files Added/Updated
 | File | Action | Purpose |
 |------|--------|---------|
-| `.claude/commands/*.md` | Added | 7 slash commands |
+| `.claude/commands/*.md` | Added | Distributed default commands (count = files in the directory) |
 | `progress.json` | Created | Task and phase tracking |
 | `session_notes.md` | Created | Session handoff notes |
 | `CLAUDE.md` | Merged/Created | Workflow rules appended |
 
 ### Commands Available
-- `/start-session` - Begin work session
-- `/update-progress` - Save progress, end session
-- `/add-work` - Add phases or tasks
-- `/generate-phases` - Generate tasks from spec
-- `/check-aws` - Verify AWS resources
-- `/setup` - Full project setup (not needed now)
+Enumerate the live directory rather than trusting a list (counts drift; the directory is truth):
+```bash
+for f in .claude/commands/*.md; do basename "$f" .md; done
+```
+Core workflow: `/start-session` → work → `/update-progress`; `/add-work` to add tracked tasks.
 
 ### Current State
 - Phase: {phase_name}
